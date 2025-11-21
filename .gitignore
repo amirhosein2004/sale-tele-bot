@@ -1,0 +1,6 @@
+venv
+.kiro
+__pycache__
+.env
+backups/
+*.sql
