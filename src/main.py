@@ -1,7 +1,7 @@
 # فایل اصلی ربات
 import telebot
-from config import BOT_TOKEN
-from handlers import register_handlers
+from .config import BOT_TOKEN
+from .handlers import register_handlers  
 
 # ایجاد نمونه ربات
 bot = telebot.TeleBot(BOT_TOKEN)
