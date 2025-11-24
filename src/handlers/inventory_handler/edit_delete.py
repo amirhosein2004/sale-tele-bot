@@ -1,0 +1,216 @@
+"""
+هندلرهای ویرایش و حذف محصول
+"""
+
+from ...keyboards import (
+    products_list_keyboard,
+    edit_product_keyboard,
+    back_button,
+    confirmation_keyboard
+)
+from ..state import (
+    get_user_state,
+    set_user_state,
+    get_user_data,
+    is_user_processing,
+    set_user_processing
+)
+
+
+class EditDelete:
+    """مدیریت ویرایش و حذف محصول"""
+    
+    def __init__(self, bot, data_manager):
+        self.bot = bot
+        self.data_manager = data_manager
+    
+    def register(self):
+        """ثبت هندلرهای ویرایش و حذف"""
+        self._register_edit_product_handlers()
+        self._register_delete_product_handler()
+    
+    def _register_edit_product_handlers(self):
+        """هندلرهای ویرایش محصول"""
+        @self.bot.callback_query_handler(func=lambda call: call.data == "edit_product_list")
+        def edit_product_list(call):
+            user_id = call.message.chat.id
+            
+            if is_user_processing(user_id):
+                self.bot.answer_callback_query(call.id, "⏳ لطفاً صبر کنید...", show_alert=False)
+                return
+            
+            set_user_processing(user_id, True)
+            try:
+                products = self.data_manager.get_all_products()
+                
+                if not products:
+                    self.bot.send_message(user_id, "❌ هیچ محصولی برای ویرایش وجود ندارد.", reply_markup=back_button())
+                    return
+                
+                set_user_state(user_id, 'edit_product')
+                self.bot.edit_message_text(
+                    "✏️ محصول مورد نظر را انتخاب کنید:",
+                    user_id,
+                    call.message.message_id,
+                    reply_markup=products_list_keyboard(products)
+                )
+            finally:
+                set_user_processing(user_id, False)
+        
+        @self.bot.callback_query_handler(func=lambda call: call.data.startswith("select_product_") and get_user_state(call.message.chat.id) == 'edit_product')
+        def select_product(call):
+            user_id = call.message.chat.id
+            
+            if is_user_processing(user_id):
+                self.bot.answer_callback_query(call.id, "⏳ لطفاً صبر کنید...", show_alert=False)
+                return
+            
+            set_user_processing(user_id, True)
+            try:
+                product_id = int(call.data.split("_")[2])
+                product = self.data_manager.get_product(product_id)
+                
+                if not product:
+                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
+                    return
+                
+                get_user_data(user_id)['selected_product_id'] = product_id
+                
+                text = f"📦 محصول: {product['name']}\n"
+                text += f"📊 موجودی: {product['quantity']} عدد\n\n"
+                text += "چه کاری می‌خواهید انجام دهید؟"
+                
+                self.bot.edit_message_text(
+                    text,
+                    user_id,
+                    call.message.message_id,
+                    reply_markup=edit_product_keyboard(product_id)
+                )
+            finally:
+                set_user_processing(user_id, False)
+        
+        @self.bot.callback_query_handler(func=lambda call: call.data.startswith("edit_name_"))
+        def edit_name_start(call):
+            user_id = call.message.chat.id
+            
+            if is_user_processing(user_id):
+                self.bot.answer_callback_query(call.id, "⏳ لطفاً صبر کنید...", show_alert=False)
+                return
+            
+            set_user_processing(user_id, True)
+            try:
+                product_id = int(call.data.split("_")[2])
+                product = self.data_manager.get_product(product_id)
+                
+                if not product:
+                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
+                    return
+                
+                get_user_data(user_id)['selected_product_id'] = product_id
+                set_user_state(user_id, 'edit_product_name')
+                
+                msg = self.bot.send_message(user_id, f"📝 نام جدید را وارد کنید (فعلی: {product['name']}):")
+                self.bot.register_next_step_handler(msg, self._process_edit_name)
+            finally:
+                set_user_processing(user_id, False)
+        
+        @self.bot.callback_query_handler(func=lambda call: call.data.startswith("edit_qty_"))
+        def edit_quantity_start(call):
+            user_id = call.message.chat.id
+            
+            if is_user_processing(user_id):
+                self.bot.answer_callback_query(call.id, "⏳ لطفاً صبر کنید...", show_alert=False)
+                return
+            
+            set_user_processing(user_id, True)
+            try:
+                product_id = int(call.data.split("_")[2])
+                product = self.data_manager.get_product(product_id)
+                
+                if not product:
+                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
+                    return
+                
+                get_user_data(user_id)['selected_product_id'] = product_id
+                set_user_state(user_id, 'edit_product_qty')
+                
+                msg = self.bot.send_message(user_id, f"📝 موجودی جدید را وارد کنید (فعلی: {product['quantity']}):")
+                self.bot.register_next_step_handler(msg, self._process_edit_quantity)
+            finally:
+                set_user_processing(user_id, False)
+    
+    def _process_edit_name(self, message):
+        """پردازش ویرایش نام محصول"""
+        user_id = message.chat.id
+        new_name = message.text.strip()
+        
+        if not new_name:
+            msg = self.bot.send_message(user_id, "❌ نام نمی‌تواند خالی باشد. دوباره تلاش کنید:")
+            self.bot.register_next_step_handler(msg, self._process_edit_name)
+            return
+        
+        product_id = get_user_data(user_id).get('selected_product_id')
+        product = self.data_manager.get_product(product_id)
+        
+        self.data_manager.update_product_name(product_id, new_name)
+        
+        self.bot.send_message(
+            user_id,
+            f"✅ نام محصول از '{product['name']}' به '{new_name}' تغییر یافت.",
+            reply_markup=back_button()
+        )
+        
+        set_user_state(user_id, 'inventory_menu')
+    
+    def _process_edit_quantity(self, message):
+        """پردازش ویرایش موجودی"""
+        user_id = message.chat.id
+        
+        try:
+            new_quantity = int(message.text.strip())
+            if new_quantity < 0:
+                raise ValueError
+        except ValueError:
+            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:")
+            self.bot.register_next_step_handler(msg, self._process_edit_quantity)
+            return
+        
+        product_id = get_user_data(user_id).get('selected_product_id')
+        product = self.data_manager.get_product(product_id)
+        
+        self.data_manager.update_product_quantity(product_id, new_quantity)
+        
+        self.bot.send_message(
+            user_id,
+            f"✅ موجودی '{product['name']}' به {new_quantity} عدد تغییر یافت.",
+            reply_markup=back_button()
+        )
+        
+        set_user_state(user_id, 'inventory_menu')
+    
+    def _register_delete_product_handler(self):
+        """هندلر حذف محصول"""
+        @self.bot.callback_query_handler(func=lambda call: call.data.startswith("delete_product_"))
+        def delete_product(call):
+            user_id = call.message.chat.id
+            
+            if is_user_processing(user_id):
+                self.bot.answer_callback_query(call.id, "⏳ لطفاً صبر کنید...", show_alert=False)
+                return
+            
+            set_user_processing(user_id, True)
+            try:
+                product_id = int(call.data.split("_")[2])
+                product = self.data_manager.get_product(product_id)
+                
+                if product:
+                    self.bot.edit_message_text(
+                        f"⚠️ آیا مطمئن هستید که می‌خواهید محصول '{product['name']}' را حذف کنید؟\n\nاین عمل قابل بازگشت نیست!",
+                        user_id,
+                        call.message.message_id,
+                        reply_markup=confirmation_keyboard("delete_product", product_id)
+                    )
+                else:
+                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
+            finally:
+                set_user_processing(user_id, False)

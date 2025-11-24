@@ -8,20 +8,21 @@ from .state import (
     is_user_processing,
     set_user_processing
 )
-from .common import (
-    register_common_handlers,
-    register_text_message_handlers
-)
-from .inventory import register_inventory_handlers
-from .sales import register_sales_handlers
+from .common_handler import CommonHandler
+from .inventory_handler import InventoryHandler
+from .sales_handler import SalesHandler
 
 
 def register_handlers(bot):
     """ثبت تمام هندلرها"""
-    register_common_handlers(bot)
-    register_inventory_handlers(bot, data_manager)
-    register_sales_handlers(bot, data_manager)
-    register_text_message_handlers(bot)
+    common_handler = CommonHandler(bot)
+    common_handler.register()
+    
+    inventory_handler = InventoryHandler(bot, data_manager)
+    inventory_handler.register()
+    
+    sales_handler = SalesHandler(bot, data_manager)
+    sales_handler.register()
 
 
 __all__ = [
