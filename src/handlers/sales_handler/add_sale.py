@@ -3,7 +3,6 @@
 """
 
 from ...keyboards import products_list_keyboard, back_button
-from ...utils import format_sale_summary
 from ..state import (
     set_user_state,
     get_user_state,
@@ -12,6 +11,7 @@ from ..state import (
     is_user_processing,
     set_user_processing
 )
+from ...services.sale_services import SalesService
 
 
 class AddSale:
@@ -20,6 +20,7 @@ class AddSale:
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
+        self.sales_service = SalesService(data_manager)
     
     def register(self):
         """ثبت هندلرهای اضافه کردن فروش"""
@@ -114,33 +115,21 @@ class AddSale:
     def _process_sale_quantity(self, message):
         """دریافت تعداد فروش"""
         user_id = message.chat.id
-        
-        try:
-            quantity = int(message.text.strip())
-            if quantity <= 0:
-                raise ValueError
-        except ValueError:
-            user_data_dict = get_user_data(user_id)
-            available_qty = user_data_dict.get('available_quantity', 0)
-            msg = self.bot.send_message(
-                user_id, 
-                f"❌ لطفاً عدد صحیح و مثبت وارد کنید:\n\n📦 موجودی فعلی: {available_qty} عدد"
-            )
-            self.bot.register_next_step_handler(msg, self._process_sale_quantity)
-            return
-        
         user_data_dict = get_user_data(user_id)
-        product_id = user_data_dict['product_id']
-        available_quantity = user_data_dict['available_quantity']
+        available_qty = user_data_dict.get('available_quantity', 0)
         
-        if quantity > available_quantity:
-            msg = self.bot.send_message(
-                user_id, 
-                f"❌ موجودی کافی نیست!\n\n📦 موجودی فعلی: {available_quantity} عدد\n🔢 درخواست شما: {quantity} عدد\n\nلطفاً تعداد کمتری وارد کنید:"
-            )
+        # استفاده از ولیدیشن سرویس
+        validation = self.sales_service.input_validator.validate_sale_quantity(message.text.strip(), available_qty)
+        
+        if not validation['is_valid']:
+            msg = self.bot.send_message(user_id, validation['error_message'])
             self.bot.register_next_step_handler(msg, self._process_sale_quantity)
             return
         
+        quantity = validation['quantity']
+        product_id = user_data_dict['product_id']
+        
+        # بررسی نهایی موجودی
         if not self.data_manager.check_inventory(product_id, quantity):
             current_product = self.data_manager.get_product(product_id)
             current_qty = current_product['quantity'] if current_product else 0
@@ -162,16 +151,15 @@ class AddSale:
         """دریافت قیمت فروش"""
         user_id = message.chat.id
         
-        try:
-            sale_price = float(message.text.strip())
-            if sale_price <= 0:
-                raise ValueError
-        except ValueError:
-            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:")
+        # استفاده از ولیدیشن سرویس
+        validation = self.sales_service.input_validator.validate_sale_price(message.text.strip())
+        
+        if not validation['is_valid']:
+            msg = self.bot.send_message(user_id, validation['error_message'])
             self.bot.register_next_step_handler(msg, self._process_sale_price)
             return
         
-        get_user_data(user_id)['total_sale_price'] = sale_price
+        get_user_data(user_id)['total_sale_price'] = validation['price']
         set_user_state(user_id, 'add_sale_cost')
         
         msg = self.bot.send_message(user_id, "💸 کل مبلغ خرید (هزینه تهیه) را وارد کنید:")
@@ -181,16 +169,15 @@ class AddSale:
         """دریافت هزینه خرید"""
         user_id = message.chat.id
         
-        try:
-            cost = float(message.text.strip())
-            if cost < 0:
-                raise ValueError
-        except ValueError:
-            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:")
+        # استفاده از ولیدیشن سرویس
+        validation = self.sales_service.input_validator.validate_sale_cost(message.text.strip())
+        
+        if not validation['is_valid']:
+            msg = self.bot.send_message(user_id, validation['error_message'])
             self.bot.register_next_step_handler(msg, self._process_sale_cost)
             return
         
-        get_user_data(user_id)['total_cost'] = cost
+        get_user_data(user_id)['total_cost'] = validation['cost']
         set_user_state(user_id, 'add_sale_extra_cost')
         
         msg = self.bot.send_message(user_id, "🏷️ هزینه‌های جانبی را وارد کنید (مثل حمل‌ونقل):")
@@ -200,16 +187,15 @@ class AddSale:
         """دریافت هزینه‌های جانبی"""
         user_id = message.chat.id
         
-        try:
-            extra_cost = float(message.text.strip())
-            if extra_cost < 0:
-                raise ValueError
-        except ValueError:
-            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:")
+        # استفاده از ولیدیشن سرویس
+        validation = self.sales_service.input_validator.validate_sale_extra_cost(message.text.strip())
+        
+        if not validation['is_valid']:
+            msg = self.bot.send_message(user_id, validation['error_message'])
             self.bot.register_next_step_handler(msg, self._process_extra_cost)
             return
         
-        get_user_data(user_id)['extra_cost'] = extra_cost
+        get_user_data(user_id)['extra_cost'] = validation['extra_cost']
         set_user_state(user_id, 'add_sale_date')
         
         msg = self.bot.send_message(user_id, "📅 تاریخ فروش را وارد کنید (مثال: 1403/09/29):")
@@ -218,61 +204,38 @@ class AddSale:
     def _process_sale_date(self, message):
         """دریافت تاریخ فروش"""
         user_id = message.chat.id
-        sale_date = message.text.strip()
         
-        if not sale_date:
-            msg = self.bot.send_message(user_id, "❌ تاریخ نمی‌تواند خالی باشد:")
+        # استفاده از ولیدیشن سرویس
+        validation = self.sales_service.input_validator.validate_sale_date(message.text.strip())
+        
+        if not validation['is_valid']:
+            msg = self.bot.send_message(user_id, validation['error_message'])
             self.bot.register_next_step_handler(msg, self._process_sale_date)
             return
         
         user_data_dict = get_user_data(user_id)
-        
         product_id = user_data_dict['product_id']
         quantity = user_data_dict['quantity']
         
-        if not self.data_manager.check_inventory(product_id, quantity):
-            current_product = self.data_manager.get_product(product_id)
-            current_qty = current_product['quantity'] if current_product else 0
-            self.bot.send_message(
-                user_id,
-                f"❌ خطا در ثبت فروش!\n\nموجودی کافی نیست:\n📦 موجودی فعلی: {current_qty} عدد\n🔢 درخواست شما: {quantity} عدد\n\nلطفاً دوباره تلاش کنید.",
-                reply_markup=back_button()
-            )
-            set_user_state(user_id, 'sales_menu')
-            return
-        
-        total_sale_price = user_data_dict['total_sale_price']
-        total_cost = user_data_dict['total_cost']
-        extra_cost = user_data_dict['extra_cost']
-        net_profit = total_sale_price - total_cost - extra_cost
-        
+        # ساخت داده‌های فروش
         sale_data = {
             'product_id': product_id,
             'product_name': user_data_dict['product_name'],
             'quantity': quantity,
-            'sale_price': total_sale_price / quantity,
-            'total_sale_price': total_sale_price,
-            'total_cost': total_cost,
-            'extra_cost': extra_cost,
-            'net_profit': net_profit,
-            'date': sale_date
+            'sale_price': user_data_dict['total_sale_price'] / quantity,
+            'total_sale_price': user_data_dict['total_sale_price'],
+            'total_cost': user_data_dict['total_cost'],
+            'extra_cost': user_data_dict['extra_cost'],
+            'net_profit': user_data_dict['total_sale_price'] - user_data_dict['total_cost'] - user_data_dict['extra_cost'],
+            'date': validation['date']
         }
         
-        if self.data_manager.reduce_inventory(product_id, quantity):
-            self.data_manager.add_sale(sale_data)
-            
-            current_product = self.data_manager.get_product(product_id)
-            remaining_qty = current_product['quantity'] if current_product else 0
-            
-            summary = format_sale_summary(sale_data)
-            summary += f"\n📦 موجودی باقی‌مانده: {remaining_qty} عدد"
-            
-            self.bot.send_message(user_id, summary, parse_mode="Markdown", reply_markup=back_button())
+        # استفاده از سرویس برای ایجاد فروش
+        result = self.sales_service.create_sale(sale_data)
+        
+        if result['success']:
+            self.bot.send_message(user_id, result['summary'], parse_mode="Markdown", reply_markup=back_button())
         else:
-            self.bot.send_message(
-                user_id,
-                "❌ خطا در کم کردن موجودی! لطفاً دوباره تلاش کنید.",
-                reply_markup=back_button()
-            )
+            self.bot.send_message(user_id, result['error_message'], reply_markup=back_button())
         
         set_user_state(user_id, 'sales_menu')

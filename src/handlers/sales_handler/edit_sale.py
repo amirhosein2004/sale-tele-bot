@@ -9,6 +9,7 @@ from ..state import (
     is_user_processing,
     set_user_processing
 )
+from ...services.sale_services import SalesService
 
 
 class EditSale:
@@ -17,6 +18,7 @@ class EditSale:
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
+        self.sales_service = SalesService(data_manager)
     
     def register(self):
         """ثبت هندلرهای ویرایش فروش"""
@@ -54,17 +56,16 @@ class EditSale:
         """پردازش ویرایش تعداد فروش"""
         user_id = message.chat.id
         
-        try:
-            quantity = int(message.text.strip())
-            if quantity <= 0:
-                raise ValueError
-        except ValueError:
+        # استفاده از ولیدیشن سرویس
+        validation = self.sales_service.input_validator.validate_sale_quantity(message.text.strip(), 999999)
+        
+        if not validation['is_valid']:
             msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:")
             self.bot.register_next_step_handler(msg, self._process_edit_sale_quantity)
             return
         
         user_data_dict = get_user_data(user_id)
-        user_data_dict['sale_data']['quantity'] = quantity
+        user_data_dict['sale_data']['quantity'] = validation['quantity']
         set_user_state(user_id, 'edit_sale_price')
         
         msg = self.bot.send_message(user_id, f"💵 کل مبلغ فروش جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['total_sale_price']}):")
@@ -74,18 +75,17 @@ class EditSale:
         """پردازش ویرایش قیمت فروش"""
         user_id = message.chat.id
         
-        try:
-            sale_price = float(message.text.strip())
-            if sale_price <= 0:
-                raise ValueError
-        except ValueError:
-            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:")
+        # استفاده از ولیدیشن سرویس
+        validation = self.sales_service.input_validator.validate_sale_price(message.text.strip())
+        
+        if not validation['is_valid']:
+            msg = self.bot.send_message(user_id, validation['error_message'])
             self.bot.register_next_step_handler(msg, self._process_edit_sale_price)
             return
         
         user_data_dict = get_user_data(user_id)
-        user_data_dict['sale_data']['total_sale_price'] = sale_price
-        user_data_dict['sale_data']['sale_price'] = sale_price / user_data_dict['sale_data']['quantity']
+        user_data_dict['sale_data']['total_sale_price'] = validation['price']
+        user_data_dict['sale_data']['sale_price'] = validation['price'] / user_data_dict['sale_data']['quantity']
         set_user_state(user_id, 'edit_sale_cost')
         
         msg = self.bot.send_message(user_id, f"💸 کل مبلغ خرید جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['total_cost']}):")
@@ -95,17 +95,16 @@ class EditSale:
         """پردازش ویرایش هزینه خرید"""
         user_id = message.chat.id
         
-        try:
-            cost = float(message.text.strip())
-            if cost < 0:
-                raise ValueError
-        except ValueError:
-            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:")
+        # استفاده از ولیدیشن سرویس
+        validation = self.sales_service.input_validator.validate_sale_cost(message.text.strip())
+        
+        if not validation['is_valid']:
+            msg = self.bot.send_message(user_id, validation['error_message'])
             self.bot.register_next_step_handler(msg, self._process_edit_sale_cost)
             return
         
         user_data_dict = get_user_data(user_id)
-        user_data_dict['sale_data']['total_cost'] = cost
+        user_data_dict['sale_data']['total_cost'] = validation['cost']
         set_user_state(user_id, 'edit_sale_extra_cost')
         
         msg = self.bot.send_message(user_id, f"🏷️ هزینه‌های جانبی جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['extra_cost']}):")
@@ -115,17 +114,16 @@ class EditSale:
         """پردازش ویرایش هزینه‌های جانبی"""
         user_id = message.chat.id
         
-        try:
-            extra_cost = float(message.text.strip())
-            if extra_cost < 0:
-                raise ValueError
-        except ValueError:
-            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:")
+        # استفاده از ولیدیشن سرویس
+        validation = self.sales_service.input_validator.validate_sale_extra_cost(message.text.strip())
+        
+        if not validation['is_valid']:
+            msg = self.bot.send_message(user_id, validation['error_message'])
             self.bot.register_next_step_handler(msg, self._process_edit_sale_extra_cost)
             return
         
         user_data_dict = get_user_data(user_id)
-        user_data_dict['sale_data']['extra_cost'] = extra_cost
+        user_data_dict['sale_data']['extra_cost'] = validation['extra_cost']
         set_user_state(user_id, 'edit_sale_date')
         
         msg = self.bot.send_message(user_id, f"📅 تاریخ جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['date']}):")
@@ -134,21 +132,27 @@ class EditSale:
     def _process_edit_sale_date(self, message):
         """پردازش ویرایش تاریخ فروش"""
         user_id = message.chat.id
-        sale_date = message.text.strip()
         
-        if not sale_date:
-            msg = self.bot.send_message(user_id, "❌ تاریخ نمی‌تواند خالی باشد:")
+        # استفاده از ولیدیشن سرویس
+        validation = self.sales_service.input_validator.validate_sale_date(message.text.strip())
+        
+        if not validation['is_valid']:
+            msg = self.bot.send_message(user_id, validation['error_message'])
             self.bot.register_next_step_handler(msg, self._process_edit_sale_date)
             return
         
         user_data_dict = get_user_data(user_id)
         sale_data = user_data_dict['sale_data']
-        sale_data['date'] = sale_date
-        
-        sale_data['net_profit'] = sale_data['total_sale_price'] - sale_data['total_cost'] - sale_data['extra_cost']
+        sale_data['date'] = validation['date']
         
         sale_id = user_data_dict['selected_sale_id']
-        self.data_manager.update_sale(sale_id, sale_data)
         
-        self.bot.send_message(user_id, "✅ فروش به‌روزرسانی شد.", reply_markup=back_button())
+        # استفاده از سرویس برای بروزرسانی فروش
+        result = self.sales_service.update_sale(sale_id, sale_data)
+        
+        if result['success']:
+            self.bot.send_message(user_id, "✅ فروش به‌روزرسانی شد.", reply_markup=back_button())
+        else:
+            self.bot.send_message(user_id, result['error_message'], reply_markup=back_button())
+        
         set_user_state(user_id, 'view_sales')

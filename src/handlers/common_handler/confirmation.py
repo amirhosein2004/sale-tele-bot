@@ -15,6 +15,8 @@ from ...utils import (
     CANCEL_MESSAGE,
     PROCESSING_MESSAGE
 )
+from ...services.inventory_services import InventoryService
+from ...services.sale_services import SalesService
 
 
 class ConfirmationManager:
@@ -23,6 +25,8 @@ class ConfirmationManager:
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
+        self.inventory_service = InventoryService(data_manager)
+        self.sales_service = SalesService(data_manager)
     
     def register(self):
         """ثبت هندلرهای تأیید و حذف"""
@@ -57,56 +61,48 @@ class ConfirmationManager:
                     return
                 
                 if action == "delete_product":
-                    self._handle_delete_product(user_id, call, item_id)
+                    self._process_delete_product(user_id, call, item_id)
                 elif action == "delete_sale":
-                    self._handle_delete_sale(user_id, call, item_id)
+                    self._process_delete_sale(user_id, call, item_id)
                 
                 set_user_state(user_id, 'main_menu')
             finally:
                 set_user_processing(user_id, False)
     
-    def _handle_delete_product(self, user_id, call, product_id):
-        """حذف محصول"""
-        product = self.data_manager.get_product(product_id)
-        if product:
-            self.data_manager.delete_product(product_id)
-            self.bot.edit_message_text(
-                f"✅ محصول '{product['name']}' حذف شد.",
-                user_id,
-                call.message.message_id,
-                reply_markup=back_button()
-            )
+    def _process_delete_product(self, user_id, call, product_id):
+        """پردازش حذف محصول"""
+        product = self.inventory_service.delete_product(product_id)
+        
+        if not product:
+            text = NOT_FOUND_MESSAGE
         else:
-            self.bot.edit_message_text(
-                NOT_FOUND_MESSAGE,
-                user_id,
-                call.message.message_id,
-                reply_markup=back_button()
-            )
+            text = f"✅ محصول '{product['name']}' حذف شد."
+        
+        self.bot.edit_message_text(
+            text,
+            user_id,
+            call.message.message_id,
+            reply_markup=back_button()
+        )
     
-    def _handle_delete_sale(self, user_id, call, sale_id):
-        """حذف فروش"""
-        sale = self.data_manager.get_sale(sale_id)
-        if sale:
-            if 'product_id' in sale:
-                product = self.data_manager.find_product_by_name(sale['product_name'])
-                if product:
-                    self.data_manager.increase_inventory(product['id'], sale['quantity'])
-            
-            self.data_manager.delete_sale(sale_id)
-            self.bot.edit_message_text(
-                f"✅ فروش حذف شد.\n\n📦 موجودی '{sale['product_name']}' بازگردانده شد: +{sale['quantity']} عدد",
-                user_id,
-                call.message.message_id,
-                reply_markup=back_button()
-            )
+    def _process_delete_sale(self, user_id, call, sale_id):
+        """پردازش حذف فروش"""
+        sale = self.sales_service.delete_sale(sale_id)
+        
+        if not sale:
+            text = NOT_FOUND_MESSAGE
         else:
-            self.bot.edit_message_text(
-                NOT_FOUND_MESSAGE,
-                user_id,
-                call.message.message_id,
-                reply_markup=back_button()
+            text = (
+                f"✅ فروش حذف شد.\n\n"
+                f"📦 موجودی '{sale['product_name']}' بازگردانده شد: +{sale['quantity']} عدد"
             )
+        
+        self.bot.edit_message_text(
+            text,
+            user_id,
+            call.message.message_id,
+            reply_markup=back_button()
+        )
     
     def _register_cancel_handler(self):
         """لغو عملیات"""

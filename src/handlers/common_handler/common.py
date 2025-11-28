@@ -26,6 +26,9 @@ from ...utils import (
     QUICK_ACTIONS_TITLE,
     SHARE_MENU_TITLE
 )
+from ...services.common_services import ReportService
+from ...services.inventory_services import InventoryService
+from ...services.sale_services import SalesService
 
 
 class CommonCommands:
@@ -34,6 +37,15 @@ class CommonCommands:
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
+        
+        # ایجاد نمونه‌های سرویس
+        self.inventory_service = InventoryService(data_manager)
+        self.sales_service = SalesService(data_manager)
+        self.report_service = ReportService(
+            data_manager,
+            self.inventory_service,
+            self.sales_service
+        )
     
     def register(self):
         """ثبت تمام دستورات اساسی"""
@@ -88,20 +100,17 @@ class CommonCommands:
                 HELP_TEXT,
                 user_id,
                 call.message.message_id,
-                parse_mode="Markdown",
+                parse_mode="Markdown", # برای زیبا کردن متن(فرمت را تغیر میدهد)
                 reply_markup=back_button()
             )
     
     def _register_share_report_handler(self):
         """اشتراک‌گذاری گزارش"""
-        @self.bot.callback_query_handler(func=lambda call: call.data == "share_report")
+        @self.bot.callback_query_handler(func=lambda call: call.data == "share_full_report")
         def share_report(call):
             user_id = call.message.chat.id
             
-            inventory_text = self.data_manager.get_products_text()
-            sales_summary = self.data_manager.get_sales_summary()
-            
-            report_text = f"📊 *گزارش کامل فروشگاه*\n\n{inventory_text}\n\n{sales_summary}"
+            report_text = self.report_service.generate_full_report()
             
             self.bot.send_message(
                 user_id,
@@ -128,6 +137,7 @@ class CommonCommands:
                     "📦 منوی موجودی محصولات",
                     reply_markup=inventory_menu_keyboard()
                 )
+
             elif text == "💳 ثبت فروش":
                 set_user_state(user_id, 'sales_menu')
                 self.bot.send_message(
@@ -135,23 +145,23 @@ class CommonCommands:
                     "💳 منوی فروش محصولات",
                     reply_markup=sales_menu_keyboard()
                 )
-            elif text == "📊 گزارش‌ها":
-                inventory_text = self.data_manager.get_products_text()
-                sales_summary = self.data_manager.get_sales_summary()
-                
-                report_text = f"📊 *گزارش کلی*\n\n{inventory_text}\n\n{sales_summary}"
+
+            elif text == "📊 گزارش خلاصه":
+                report_text = self.report_service.generate_summary_report()
                 self.bot.send_message(
                     user_id,
                     report_text,
                     parse_mode="Markdown",
                     reply_markup=main_menu_keyboard()
                 )
+
             elif text == "🔧 عملیات سریع":
                 self.bot.send_message(
                     user_id,
                     QUICK_ACTIONS_TITLE,
                     reply_markup=quick_actions_keyboard()
                 )
+
             elif text == "📖 راهنما":
                 self.bot.send_message(
                     user_id,
@@ -159,12 +169,14 @@ class CommonCommands:
                     parse_mode="Markdown",
                     reply_markup=help_keyboard()
                 )
+
             elif text == "📤 اشتراک‌گذاری":
                 self.bot.send_message(
                     user_id,
                     SHARE_MENU_TITLE,
                     reply_markup=share_keyboard()
                 )
+
             else:
                 set_user_state(user_id, 'main_menu')
                 clear_user_data(user_id)

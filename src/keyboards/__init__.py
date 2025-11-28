@@ -6,7 +6,6 @@ from .common import (
     remove_keyboard,
     quick_actions_keyboard,
     confirmation_keyboard,
-    navigation_keyboard,
     help_keyboard,
     share_keyboard
 )
@@ -33,7 +32,6 @@ __all__ = [
     'remove_keyboard',
     'quick_actions_keyboard',
     'confirmation_keyboard',
-    'navigation_keyboard',
     'help_keyboard',
     'share_keyboard',
     

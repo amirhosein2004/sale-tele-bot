@@ -4,6 +4,14 @@ from ..data_manager import DataManager
 # ایجاد یک instance مشترک از DataManager
 data_manager = DataManager()
 
+
+import random
+
+for i in range(1, 30):
+    name = f"Product {i}"
+    quantity = random.randint(1, 50)
+    data_manager.add_product(name, quantity)
+
 # ذخیره وضعیت کاربران
 user_states = {}
 user_data = {}

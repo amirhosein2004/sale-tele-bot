@@ -1,15 +1,17 @@
 """
 کلاس مدیریت هندلرهای فروش
-سازماندهی شده به چهار ماژول:
+سازماندهی شده به پنج ماژول:
 - menu.py: منوی فروش
 - add_sale.py: اضافه کردن فروش
-- view_sales.py: مشاهده و حذف فروش
+- view_sales.py: مشاهده فروش
+- delete_sale.py: حذف فروش
 - edit_sale.py: ویرایش فروش
 """
 
 from .menu import SalesMenu
 from .add_sale import AddSale
 from .view_sales import ViewSales
+from .delete_sale import DeleteSale
 from .edit_sale import EditSale
 
 
@@ -24,6 +26,7 @@ class SalesHandler:
         self.menu = SalesMenu(bot, data_manager)
         self.add_sale = AddSale(bot, data_manager)
         self.view_sales = ViewSales(bot, data_manager)
+        self.delete_sale = DeleteSale(bot, data_manager)
         self.edit_sale = EditSale(bot, data_manager)
     
     def register(self):
@@ -31,4 +34,5 @@ class SalesHandler:
         self.menu.register()
         self.add_sale.register()
         self.view_sales.register()
+        self.delete_sale.register()
         self.edit_sale.register()

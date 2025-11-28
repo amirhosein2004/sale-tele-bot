@@ -24,7 +24,7 @@ def main_reply_keyboard():
     """صفحه‌کلید کشویی منوی اصلی"""
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
     markup.add("📦 موجودی محصولات", "💳 ثبت فروش")
-    markup.add("📊 گزارش‌ها", "🔧 عملیات سریع")
+    markup.add("📊 گزارش خلاصه", "🔧 عملیات سریع")
     markup.add("📖 راهنما", "📤 اشتراک‌گذاری")
     return markup
 
@@ -59,15 +59,15 @@ def confirmation_keyboard(action, item_id):
     return markup
 
 
-def navigation_keyboard():
-    """دکمه‌های ناوبری"""
-    markup = types.InlineKeyboardMarkup()
-    markup.add(
-        types.InlineKeyboardButton("⬅️ قبلی", callback_data="prev_page"),
-        types.InlineKeyboardButton("🏠 خانه", callback_data="back_to_main"),
-        types.InlineKeyboardButton("➡️ بعدی", callback_data="next_page")
-    )
-    return markup
+# def navigation_keyboard():
+#     """دکمه‌های ناوبری"""
+#     markup = types.InlineKeyboardMarkup()
+#     markup.add(
+#         types.InlineKeyboardButton("⬅️ قبلی", callback_data="prev_page"),
+#         types.InlineKeyboardButton("🏠 خانه", callback_data="back_to_main"),
+#         types.InlineKeyboardButton("➡️ بعدی", callback_data="next_page")
+#     )
+#     return markup
 
 
 def help_keyboard():
@@ -84,6 +84,6 @@ def share_keyboard():
     """دکمه‌های اشتراک‌گذاری"""
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("📤 اشتراک‌گذاری ربات", switch_inline_query="استفاده از ربات مدیریت فروش"))
-    markup.add(types.InlineKeyboardButton("📊 اشتراک گزارش", callback_data="share_report"))
+    markup.add(types.InlineKeyboardButton("📊 اشتراک گزارش کامل", callback_data="share_full_report"))
     markup.add(types.InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_main"))
     return markup

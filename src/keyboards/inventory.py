@@ -16,11 +16,9 @@ def products_list_keyboard(products, disabled=False, for_sale=False):
         # نمایش وضعیت موجودی
         if for_sale:
             if product['quantity'] > 0:
-                status_icon = "✅"
-                btn_text = f"{status_icon} {product['name']} ({product['quantity']} عدد)"
+                btn_text = f"✅ {product['name']} ({product['quantity']} عدد)"
             else:
-                status_icon = "❌"
-                btn_text = f"{status_icon} {product['name']} (ناموجود)"
+                btn_text = f"❌ {product['name']} (ناموجود)"
         else:
             btn_text = f"📦 {product['name']} ({product['quantity']} عدد)"
         
