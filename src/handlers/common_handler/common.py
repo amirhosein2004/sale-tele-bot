@@ -101,7 +101,7 @@ class CommonCommands:
                 user_id,
                 call.message.message_id,
                 parse_mode="Markdown", # برای زیبا کردن متن(فرمت را تغیر میدهد)
-                reply_markup=back_button()
+                reply_markup=help_keyboard()
             )
     
     def _register_share_report_handler(self):
@@ -121,7 +121,7 @@ class CommonCommands:
             self.bot.answer_callback_query(call.id, REPORT_SHARED_MESSAGE)
     
     def _register_text_message_handler(self):
-        """هندلر پیام‌های متنی"""
+        """هندلر پیام‌های متنی(کیبورد کشویی)"""
         @self.bot.message_handler(func=lambda message: True)
         def handle_text_messages(message):
             user_id = message.chat.id

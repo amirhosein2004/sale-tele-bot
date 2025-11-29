@@ -44,7 +44,7 @@ class EditProduct:
                 products = self.data_manager.get_all_products()
                 
                 if not products:
-                    self.bot.send_message(user_id, "❌ هیچ محصولی برای ویرایش وجود ندارد.", reply_markup=back_button())
+                    self.bot.send_message(user_id, "❌ هیچ محصولی برای ویرایش وجود ندارد.", reply_markup=back_button("inventory"))
                     return
                 
                 set_user_state(user_id, 'edit_product')
@@ -71,7 +71,7 @@ class EditProduct:
                 product = self.data_manager.get_product(product_id)
                 
                 if not product:
-                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
+                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button("inventory"))
                     return
                 
                 get_user_data(user_id)['selected_product_id'] = product_id
@@ -105,7 +105,7 @@ class EditProduct:
                 validation = self.inventory_service.product_validator.validate_product_exists(product_id)
                 
                 if not validation['is_valid']:
-                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
+                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button("inventory"))
                     return
                 
                 product = validation['product']
@@ -133,7 +133,7 @@ class EditProduct:
                 validation = self.inventory_service.product_validator.validate_product_exists(product_id)
                 
                 if not validation['is_valid']:
-                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
+                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button("inventory"))
                     return
                 
                 product = validation['product']
@@ -162,7 +162,7 @@ class EditProduct:
         self.bot.send_message(
             user_id,
             f"✅ نام محصول از '{result['old_name']}' به '{result['new_name']}' تغییر یافت.",
-            reply_markup=back_button()
+            reply_markup=back_button("inventory")
         )
         
         set_user_state(user_id, 'inventory_menu')
@@ -183,7 +183,7 @@ class EditProduct:
         self.bot.send_message(
             user_id,
             f"✅ موجودی '{result['product']['name']}' به {result['new_quantity']} عدد تغییر یافت.",
-            reply_markup=back_button()
+            reply_markup=back_button("inventory")
         )
         
         set_user_state(user_id, 'inventory_menu')

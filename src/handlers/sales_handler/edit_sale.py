@@ -42,7 +42,7 @@ class EditSale:
                 validation = self.sales_service.sale_validator.validate_sale_exists(sale_id)
                 
                 if not validation['is_valid']:
-                    self.bot.send_message(user_id, "❌ فروش یافت نشد.", reply_markup=back_button())
+                    self.bot.send_message(user_id, "❌ فروش یافت نشد.", reply_markup=back_button("sales"))
                     return
                 
                 sale = validation['sale']
@@ -154,8 +154,8 @@ class EditSale:
         result = self.sales_service.update_sale(sale_id, sale_data)
         
         if result['success']:
-            self.bot.send_message(user_id, "✅ فروش به‌روزرسانی شد.", reply_markup=back_button())
+            self.bot.send_message(user_id, "✅ فروش به‌روزرسانی شد.", reply_markup=back_button("sales"))
         else:
-            self.bot.send_message(user_id, result['error_message'], reply_markup=back_button())
+            self.bot.send_message(user_id, result['error_message'], reply_markup=back_button("sales"))
         
         set_user_state(user_id, 'view_sales')

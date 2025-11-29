@@ -18,7 +18,7 @@ class InventoryService:
         self.deletion_validator = DeletionValidator(data_manager)
         self.product_validator = ProductValidator(data_manager)
     
-    def format_products_list(self, products: list) -> str: # ✅ 
+    def format_products_list(self, products: list) -> str: 
         """
         فرمت‌بندی لیست محصولات برای نمایش
         
@@ -33,45 +33,13 @@ class InventoryService:
         
         text = "📦 *موجودی محصولات*\n\n"
         for product in products:
-            status_icon = "✅" if product['quantity'] > 0 else "❌"
-            text += f"{status_icon} {product['name']} - موجودی: {product['quantity']} عدد\n"
+            quantity = int(product['quantity'])
+            status_icon = "✅" if quantity > 0 else "❌"
+            text += f"{status_icon} {product['name']} - موجودی: {quantity} عدد\n"
         
         return text
     
-    def format_product_details(self, product: dict) -> str:
-        """
-        فرمت‌بندی جزئیات محصول
-        
-        Args:
-            product: داده‌های محصول
-            
-        Returns:
-            متن فرمت‌شده
-        """
-        text = f"📦 محصول: {product['name']}\n"
-        text += f"📊 موجودی: {product['quantity']} عدد\n"
-        return text
-    
-    def get_available_products_text(self) -> str:
-        """
-        دریافت متن محصولات موجود برای فروش
-        
-        Returns:
-            متن فرمت‌شده
-        """
-        available_products = self.data_manager.get_available_products()
-        
-        if not available_products:
-            return "❌ هیچ محصولی برای فروش دسترس ندارد."
-        
-        text = "📦 *محصولات موجود برای فروش:*\n\n"
-        for product in available_products:
-            status_icon = "✅" if product['quantity'] > 0 else "❌"
-            text += f"{status_icon} {product['name']} - موجودی: {product['quantity']} عدد\n"
-        
-        return text
-    
-    def calculate_inventory_summary(self) -> dict: # ✅ 
+    def calculate_inventory_summary(self) -> dict: 
         """
         محاسبه خلاصه موجودی
         
@@ -111,7 +79,7 @@ class InventoryService:
         
         return product
 
-    def update_product_name(self, product_id: int, new_name: str) -> dict: # ✅ 
+    def update_product_name(self, product_id: int, new_name: str) -> dict: 
         """
         بروزرسانی نام محصول
         
@@ -154,7 +122,7 @@ class InventoryService:
             'error_message': None
         }
     
-    def update_product_quantity(self, product_id: int, new_quantity: int) -> dict: # ✅ 
+    def update_product_quantity(self, product_id: int, new_quantity: int) -> dict: 
         """
         بروزرسانی موجودی محصول
         

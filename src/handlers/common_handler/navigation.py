@@ -11,8 +11,6 @@ from ...utils import (
     QUICK_ACTIONS_TITLE,
     SHARE_MENU_TITLE,
     DISABLED_BUTTON_MESSAGE,
-    PAGINATION_PREV_MESSAGE,
-    PAGINATION_NEXT_MESSAGE
 )
 
 
@@ -25,19 +23,9 @@ class NavigationMenu:
     
     def register(self):
         """ثبت هندلرهای ناوبری"""
-        self._register_pagination_handler()
         self._register_quick_actions_handler()
         self._register_share_menu_handler()
         self._register_disabled_button_handler()
-    
-    def _register_pagination_handler(self):
-        """مدیریت صفحه‌بندی"""
-        @self.bot.callback_query_handler(func=lambda call: call.data in ["prev_page", "next_page"])
-        def handle_pagination(call):
-            if call.data == "prev_page":
-                self.bot.answer_callback_query(call.id, PAGINATION_PREV_MESSAGE, show_alert=False)
-            else:
-                self.bot.answer_callback_query(call.id, PAGINATION_NEXT_MESSAGE, show_alert=False)
     
     def _register_quick_actions_handler(self):
         """منوی عملیات سریع"""

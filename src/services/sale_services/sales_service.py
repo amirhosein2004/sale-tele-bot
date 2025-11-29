@@ -18,37 +18,8 @@ class SalesService:
         self.deletion_validator = DeletionValidator(data_manager)
         self.sale_validator = SaleValidator(data_manager)
         self.input_validator = SaleInputValidator(data_manager)
-    
-    def calculate_profit(self, total_sale_price: float, total_cost: float, extra_cost: float) -> float:
-        """
-        محاسبه سود خالص
-        
-        Args:
-            total_sale_price: کل قیمت فروش
-            total_cost: کل هزینه خرید
-            extra_cost: هزینه‌های جانبی
-            
-        Returns:
-            سود خالص
-        """
-        return total_sale_price - total_cost - extra_cost
-    
-    def calculate_unit_price(self, total_price: float, quantity: int) -> float:
-        """
-        محاسبه قیمت واحد
-        
-        Args:
-            total_price: کل قیمت
-            quantity: تعداد
-            
-        Returns:
-            قیمت واحد
-        """
-        if quantity <= 0:
-            return 0.0
-        return total_price / quantity
-    
-    def format_sale_details(self, sale: dict) -> str: # ✅
+
+    def format_sale_details(self, sale: dict) -> str: # 
         """
         فرمت‌بندی جزئیات فروش
         
@@ -114,33 +85,7 @@ class SalesService:
             'total_profit': total_profit
         }
     
-    def get_sales_by_product(self, product_name: str) -> list:
-        """
-        دریافت فروش‌های یک محصول
-        
-        Args:
-            product_name: نام محصول
-            
-        Returns:
-            لیست فروش‌های محصول
-        """
-        sales = self.data_manager.get_all_sales()
-        return [s for s in sales if s.get('product_name') == product_name]
-    
-    def calculate_product_profit(self, product_name: str) -> float:
-        """
-        محاسبه سود کل یک محصول
-        
-        Args:
-            product_name: نام محصول
-            
-        Returns:
-            سود کل محصول
-        """
-        sales = self.get_sales_by_product(product_name)
-        return sum(s.get('net_profit', 0) for s in sales)
-    
-    def delete_sale(self, sale_id: int) -> dict: # ✅ 
+    def delete_sale(self, sale_id: int) -> dict: 
         """
         حذف فروش و بازگرداندن موجودی
         
@@ -168,7 +113,7 @@ class SalesService:
         
         return sale
     
-    def get_sale_details(self, sale_id: int) -> dict: # ✅
+    def get_sale_details(self, sale_id: int) -> dict: 
         """
         دریافت جزئیات فروش
         
@@ -197,7 +142,7 @@ class SalesService:
             'text': text
         }
 
-    def create_sale(self, sale_data: dict) -> dict: # ✅
+    def create_sale(self, sale_data: dict) -> dict: 
         """
         ایجاد فروش جدید
         
@@ -250,7 +195,7 @@ class SalesService:
             'remaining_qty': remaining_qty
         }
     
-    def update_sale(self, sale_id: int, sale_data: dict) -> dict: # ✅
+    def update_sale(self, sale_id: int, sale_data: dict) -> dict: 
         """
         بروزرسانی فروش
         
@@ -284,7 +229,7 @@ class SalesService:
             'error_message': '❌ خطا در بروزرسانی فروش!'
         }
     
-    def get_sales_list_for_display(self) -> dict: # ✅
+    def get_sales_list_for_display(self) -> dict: 
         """
         دریافت لیست فروش‌ها برای نمایش
         

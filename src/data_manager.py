@@ -161,29 +161,32 @@ class DataManager:
     def reduce_inventory(self, product_id, quantity):
         """کم کردن موجودی محصول"""
         if product_id in self.products:
-            if self.products[product_id]['quantity'] >= quantity:
-                self.products[product_id]['quantity'] -= quantity
+            current_qty = int(self.products[product_id]['quantity'])
+            if current_qty >= quantity:
+                self.products[product_id]['quantity'] = current_qty - quantity
                 return True
         return False
     
     def increase_inventory(self, product_id, quantity):
         """اضافه کردن موجودی محصول"""
         if product_id in self.products:
-            self.products[product_id]['quantity'] += quantity
+            current_qty = int(self.products[product_id]['quantity'])
+            self.products[product_id]['quantity'] = current_qty + quantity
             return True
         return False
     
     def check_inventory(self, product_id, quantity):
         """بررسی موجودی کافی"""
         if product_id in self.products:
-            return self.products[product_id]['quantity'] >= quantity
+            current_qty = int(self.products[product_id]['quantity'])
+            return current_qty >= quantity
         return False
     
     def get_available_products(self):
         """دریافت محصولات با موجودی بیش از صفر"""
         available_products = []
         for product in self.get_all_products():
-            if product['quantity'] > 0:
+            if int(product['quantity']) > 0:
                 available_products.append(product)
         return available_products
     

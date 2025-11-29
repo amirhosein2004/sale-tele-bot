@@ -71,7 +71,7 @@ class AddProduct:
         self.bot.send_message(
             user_id,
             f"✅ محصول '{result['product_name']}' با موجودی {result['quantity']} عدد اضافه شد.",
-            reply_markup=back_button()
+            reply_markup=back_button("inventory")
         )
         
         set_user_state(user_id, 'inventory_menu')

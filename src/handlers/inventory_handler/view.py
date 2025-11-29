@@ -32,5 +32,5 @@ class ViewInventory:
                 user_id,
                 inventory_text,
                 parse_mode="Markdown",
-                reply_markup=back_button()
+                reply_markup=back_button("inventory")
             )

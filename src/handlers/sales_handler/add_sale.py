@@ -47,7 +47,7 @@ class AddSale:
                     self.bot.send_message(
                         user_id,
                         status['message'],
-                        reply_markup=back_button()
+                        reply_markup=back_button("sales")
                     )
                     return
                 
@@ -84,14 +84,14 @@ class AddSale:
                 product = self.data_manager.get_product(product_id)
                 
                 if not product:
-                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
+                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button("sales"))
                     return
                 
                 if product['quantity'] <= 0:
                     self.bot.send_message(
                         user_id, 
                         f"❌ محصول '{product['name']}' موجودی ندارد.\n\nلطفاً محصول دیگری انتخاب کنید یا ابتدا موجودی را تکمیل کنید.",
-                        reply_markup=back_button()
+                        reply_markup=back_button("sales")
                     )
                     return
                 
@@ -230,8 +230,8 @@ class AddSale:
         result = self.sales_service.create_sale(sale_data)
         
         if result['success']:
-            self.bot.send_message(user_id, result['summary'], parse_mode="Markdown", reply_markup=back_button())
+            self.bot.send_message(user_id, result['summary'], parse_mode="Markdown", reply_markup=back_button("sales"))
         else:
-            self.bot.send_message(user_id, result['error_message'], reply_markup=back_button())
+            self.bot.send_message(user_id, result['error_message'], reply_markup=back_button("sales"))
         
         set_user_state(user_id, 'sales_menu')

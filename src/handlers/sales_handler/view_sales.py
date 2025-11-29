@@ -40,7 +40,7 @@ class ViewSales:
                 result = self.sales_service.get_sales_list_for_display()
                 
                 if not result['has_sales']:
-                    self.bot.send_message(user_id, result['message'], reply_markup=back_button())
+                    self.bot.send_message(user_id, result['message'], reply_markup=back_button("sales"))
                     return
                 
                 set_user_state(user_id, 'view_sales')
@@ -69,7 +69,7 @@ class ViewSales:
                 result = self.sales_service.get_sale_details(sale_id)
                 
                 if not result['success']:
-                    self.bot.send_message(user_id, result['text'], reply_markup=back_button())
+                    self.bot.send_message(user_id, result['text'], reply_markup=back_button("sales"))
                     return
                 
                 get_user_data(user_id)['selected_sale_id'] = sale_id

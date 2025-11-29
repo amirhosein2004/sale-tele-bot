@@ -82,7 +82,7 @@ class ReportService:
         
         return f"📊 *گزارش کامل فروشگاه*\n\n{inventory_report}\n\n{sales_report}"
     
-    def generate_summary_report(self) -> str:
+    def generate_summary_report(self) -> str: 
         """
         تولید گزارش خلاصه
         
@@ -102,30 +102,5 @@ class ReportService:
         text += f"  • تعداد فروش: {sales_summary['total_sales']}\n"
         text += f"  • کل درآمد: {sales_summary['total_revenue']}\n"
         text += f"  • سود خالص: {sales_summary['total_profit']}\n"
-        
-        return text
-   
-    def generate_product_report(self, product_name: str) -> str:
-        """
-        تولید گزارش محصول
-        
-        Args:
-            product_name: نام محصول
-            
-        Returns:
-            متن گزارش
-        """
-        product = self.data_manager.find_product_by_name(product_name)
-        
-        if not product:
-            return f"❌ محصول '{product_name}' یافت نشد."
-        
-        sales = self.sales_service.get_sales_by_product(product_name)
-        profit = self.sales_service.calculate_product_profit(product_name)
-        
-        text = f"📦 *گزارش محصول: {product_name}*\n\n"
-        text += f"📊 موجودی فعلی: {product['quantity']} عدد\n"
-        text += f"💳 تعداد فروش: {len(sales)}\n"
-        text += f"📈 سود کل: {profit}\n"
         
         return text

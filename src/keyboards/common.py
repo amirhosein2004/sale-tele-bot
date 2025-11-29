@@ -13,10 +13,16 @@ def main_menu_keyboard():
     return markup
 
 
-def back_button():
-    """دکمه بازگشت"""
+def back_button(target="main"):
+    """دکمه بازگشت - target: main, inventory, sales"""
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_main"))
+    callback_map = {
+        "main": "back_to_main",
+        "inventory": "back_to_inventory",
+        "sales": "back_to_sales"
+    }
+    callback_data = callback_map.get(target, "back_to_main")
+    markup.add(types.InlineKeyboardButton("🔙 بازگشت", callback_data=callback_data))
     return markup
 
 
@@ -57,17 +63,6 @@ def confirmation_keyboard(action, item_id):
         types.InlineKeyboardButton("❌ لغو", callback_data="cancel_action")
     )
     return markup
-
-
-# def navigation_keyboard():
-#     """دکمه‌های ناوبری"""
-#     markup = types.InlineKeyboardMarkup()
-#     markup.add(
-#         types.InlineKeyboardButton("⬅️ قبلی", callback_data="prev_page"),
-#         types.InlineKeyboardButton("🏠 خانه", callback_data="back_to_main"),
-#         types.InlineKeyboardButton("➡️ بعدی", callback_data="next_page")
-#     )
-#     return markup
 
 
 def help_keyboard():
