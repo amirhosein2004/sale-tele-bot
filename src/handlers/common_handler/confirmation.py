@@ -4,7 +4,7 @@
 """
 
 from ...keyboards import back_button, main_menu_keyboard
-from ..state import (
+from ...states.state import (
     set_user_state,
     is_user_processing,
     set_user_processing
@@ -82,7 +82,7 @@ class ConfirmationManager:
             text,
             user_id,
             call.message.message_id,
-            reply_markup=back_button()
+            reply_markup=back_button("inventory")
         )
     
     def _process_delete_sale(self, user_id, call, sale_id):
@@ -101,7 +101,7 @@ class ConfirmationManager:
             text,
             user_id,
             call.message.message_id,
-            reply_markup=back_button()
+            reply_markup=back_button("sales")
         )
     
     def _register_cancel_handler(self):

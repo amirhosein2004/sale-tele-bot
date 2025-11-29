@@ -3,7 +3,7 @@
 """
 
 from ...keyboards import inventory_menu_keyboard
-from ..state import set_user_state
+from ...states.state import set_user_state
 
 
 class InventoryMenu:

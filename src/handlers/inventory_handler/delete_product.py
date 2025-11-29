@@ -6,7 +6,7 @@ from ...keyboards import (
     back_button,
     confirmation_keyboard
 )
-from ..state import (
+from ...states.state import (
     is_user_processing,
     set_user_processing
 )
@@ -51,6 +51,6 @@ class DeleteProduct:
                         reply_markup=confirmation_keyboard("delete_product", product_id)
                     )
                 else:
-                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
+                    self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button("inventory"))
             finally:
                 set_user_processing(user_id, False)

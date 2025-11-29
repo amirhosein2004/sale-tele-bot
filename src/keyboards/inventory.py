@@ -14,19 +14,20 @@ def products_list_keyboard(products, disabled=False, for_sale=False):
     markup = types.InlineKeyboardMarkup()
     for product in products:
         # نمایش وضعیت موجودی
+        quantity = int(product['quantity'])
         if for_sale:
-            if product['quantity'] > 0:
-                btn_text = f"✅ {product['name']} ({product['quantity']} عدد)"
+            if quantity > 0:
+                btn_text = f"✅ {product['name']} ({quantity} عدد)"
             else:
                 btn_text = f"❌ {product['name']} (ناموجود)"
         else:
-            btn_text = f"📦 {product['name']} ({product['quantity']} عدد)"
+            btn_text = f"📦 {product['name']} ({quantity} عدد)"
         
         btn = types.InlineKeyboardButton(
             btn_text,
             callback_data=f"select_product_{product['id']}"
         )
-        if disabled or (for_sale and product['quantity'] <= 0):
+        if disabled or (for_sale and quantity <= 0):
             btn.callback_data = "disabled"
         markup.add(btn)
     

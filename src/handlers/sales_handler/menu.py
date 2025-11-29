@@ -3,7 +3,7 @@
 """
 
 from ...keyboards import sales_menu_keyboard
-from ..state import set_user_state
+from ...states.state import set_user_state
 
 
 class SalesMenu:

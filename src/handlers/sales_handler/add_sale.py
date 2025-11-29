@@ -3,7 +3,7 @@
 """
 
 from ...keyboards import products_list_keyboard, back_button
-from ..state import (
+from ...states.state import (
     set_user_state,
     get_user_state,
     get_user_data,
@@ -57,7 +57,7 @@ class AddSale:
                 available_products = status['available_products']
                 products_text = "📦 *محصولات موجود برای فروش:*\n\n"
                 for product in available_products:
-                    status_icon = "✅" if product['quantity'] > 0 else "❌"
+                    status_icon = "✅" if int(product['quantity']) > 0 else "❌"
                     products_text += f"{status_icon} {product['name']} - موجودی: {product['quantity']} عدد\n"
                 
                 self.bot.edit_message_text(

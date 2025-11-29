@@ -7,7 +7,7 @@ from ...keyboards import (
     edit_product_keyboard,
     back_button
 )
-from ..state import (
+from ...states.state import (
     get_user_state,
     set_user_state,
     get_user_data,
