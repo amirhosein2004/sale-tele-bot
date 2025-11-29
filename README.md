@@ -152,54 +152,49 @@ python src/main.py
 
 ```
 src/
-├── main.py                          # نقطه ورود اصلی ربات
-├── config.py                        # تنظیمات و توکن ربات
-├── data_manager.py                  # کلاس مدیریت داده‌ها
-├── handlers/
-│   ├── __init__.py                  # ثبت تمام هندلرها
-│   ├── state.py                     # مدیریت وضعیت کاربران
-│   ├── common_handler/
-│   │   ├── common_handler.py        # کلاس اصلی هندلر عمومی
-│   │   ├── common.py                # دستورات عمومی
-│   │   ├── navigation.py            # دستورات ناوبری
-│   │   └── confirmation.py          # دستورات تأیید
-│   ├── inventory_handler/
-│   │   ├── inventory_handler.py     # کلاس اصلی هندلر موجودی
-│   │   ├── menu.py                  # منوی موجودی
-│   │   ├── add_product.py           # اضافه کردن محصول
-│   │   ├── edit_delete.py           # ویرایش و حذف محصول
-│   │   └── view.py                  # مشاهده محصولات
-│   └── sales_handler/
-│       ├── sales_handler.py         # کلاس اصلی هندلر فروش
-│       ├── menu.py                  # منوی فروش
-│       ├── add_sale.py              # ثبت فروش جدید
-│       ├── edit_sale.py             # ویرایش فروش
-│       └── view_sales.py            # مشاهده فروش‌ها
-├── keyboards/
-│   ├── common.py                    # دکمه‌های عمومی
-│   ├── inventory.py                 # دکمه‌های موجودی
-│   └── sales.py                     # دکمه‌های فروش
-└── utils/
-    └── utils.py                     # توابع کمکی
+├── main.py                 # نقطه ورود اصلی ربات
+├── config.py               # تنظیمات و توکن ربات
+├── data_manager.py         # کلاس مدیریت داده‌ها (محصولات و فروش)
+│
+├── handlers/               # هندلرهای پردازش رویدادها
+│   ├── common_handler/     # دستورات عمومی، ناوبری و تأیید
+│   ├── inventory_handler/  # مدیریت محصولات و موجودی
+│   └── sales_handler/      # مدیریت فروش‌ها
+│
+├── keyboards/              # تعریف دکمه‌ها و منوها
+│   ├── common.py           # دکمه‌های عمومی (منوی اصلی، بازگشت)
+│   ├── inventory.py        # دکمه‌های موجودی
+│   ├── sales.py            # دکمه‌های فروش
+│   └── pagination.py       # صفحه‌بندی لیست‌ها
+│
+├── services/               # منطق تجاری (Business Logic)
+│   ├── common_services/    # سرویس گزارش‌گیری
+│   ├── inventory_services/ # سرویس مدیریت موجودی
+│   └── sale_services/      # سرویس مدیریت فروش
+│
+├── states/                 # مدیریت وضعیت کاربران
+│   └── state.py            # ذخیره state و داده‌های موقت کاربران
+│
+├── validations/            # اعتبارسنجی ورودی‌ها
+│   ├── product_validation.py   # اعتبارسنجی محصولات
+│   ├── sale_validation.py      # اعتبارسنجی فروش
+│   └── deletion_validation.py  # اعتبارسنجی حذف
+│
+└── utils/                  # توابع کمکی و پیام‌های ثابت
+    └── utils.py
 ```
 
 ### توضیح ساختار
 
-**پوشه `handlers/`** - مدیریت تمام رویدادهای ربات:
-- **`common_handler/`**: دستورات عمومی و ناوبری
-- **`inventory_handler/`**: مدیریت محصولات و موجودی
-- **`sales_handler/`**: مدیریت فروش‌ها
-- **`state.py`**: ردیابی وضعیت کاربران و داده‌های موقت
-
-**پوشه `keyboards/`** - تعریف دکمه‌ها و منوها:
-- دکمه‌های Inline برای منوهای اصلی
-- دکمه‌های Reply برای دسترسی سریع
-- دکمه‌های تأیید و لغو
-
-**فایل‌های اصلی:**
-- **`main.py`**: راه‌اندازی ربات و ثبت هندلرها
-- **`config.py`**: توکن ربات و تنظیمات
-- **`data_manager.py`**: کلاس DataManager برای مدیریت داده‌ها
+| پوشه/فایل | توضیح |
+|-----------|-------|
+| `handlers/` | پردازش رویدادها و callback های ربات |
+| `keyboards/` | تعریف دکمه‌های Inline و Reply |
+| `services/` | منطق تجاری جدا از هندلرها |
+| `states/` | مدیریت وضعیت و داده‌های موقت کاربران |
+| `validations/` | اعتبارسنجی ورودی‌های کاربر |
+| `utils/` | توابع کمکی و پیام‌های ثابت |
+| `data_manager.py` | کلاس مدیریت داده‌ها (CRUD) |
 
 ## ⚙️ تنظیمات
 
