@@ -7,7 +7,7 @@ from ..state import (
     is_user_processing,
     set_user_processing
 )
-from ...validations import SaleValidator
+from ...services.sale_services import SalesService
 
 
 class DeleteSale:
@@ -16,7 +16,7 @@ class DeleteSale:
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
-        self.sale_validator = SaleValidator(data_manager)
+        self.sales_service = SalesService(data_manager)
     
     def register(self):
         """ثبت هندلرهای حذف فروش"""
@@ -37,7 +37,7 @@ class DeleteSale:
                 sale_id = int(call.data.split("_")[2])
                 
                 # استفاده از ولیدیشن برای بررسی وجود فروش
-                validation = self.sale_validator.validate_sale_exists(sale_id)
+                validation = self.sales_service.sale_validator.validate_sale_exists(sale_id)
                 
                 if validation['is_valid']:
                     sale = validation['sale']

@@ -10,7 +10,7 @@ from ..state import (
     is_user_processing,
     set_user_processing
 )
-from ...validations import ProductValidator
+from ...services.inventory_services import InventoryService
 
 
 class DeleteProduct:
@@ -19,7 +19,7 @@ class DeleteProduct:
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
-        self.product_validator = ProductValidator(data_manager)
+        self.inventory_service = InventoryService(data_manager)
     
     def register(self):
         """ثبت هندلرهای حذف محصول"""
@@ -40,7 +40,7 @@ class DeleteProduct:
                 product_id = int(call.data.split("_")[2])
                 
                 # استفاده از ولیدیتور برای بررسی وجود محصول
-                validation = self.product_validator.validate_product_exists(product_id)
+                validation = self.inventory_service.product_validator.validate_product_exists(product_id)
                 
                 if validation['is_valid']:
                     product = validation['product']

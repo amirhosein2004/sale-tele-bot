@@ -194,3 +194,73 @@ class InventoryService:
             'new_quantity': new_quantity,
             'error_message': None
         }
+    
+    def create_product(self, product_name: str, quantity: int) -> dict:
+        """
+        ایجاد محصول جدید
+        
+        Args:
+            product_name: نام محصول
+            quantity: موجودی اولیه
+            
+        Returns:
+            دیکشنری شامل: success (bool), product_id (int|None), error_message (str|None)
+        """
+        # ولیدیشن نام
+        name_validation = self.product_validator.validate_product_name(product_name)
+        if not name_validation['is_valid']:
+            return {
+                'success': False,
+                'product_id': None,
+                'error_message': name_validation['error_message']
+            }
+        
+        # ولیدیشن موجودی
+        quantity_validation = self.product_validator.validate_product_quantity(quantity)
+        if not quantity_validation['is_valid']:
+            return {
+                'success': False,
+                'product_id': None,
+                'error_message': quantity_validation['error_message']
+            }
+        
+        # اضافه کردن محصول
+        product_id = self.data_manager.add_product(product_name, quantity)
+        
+        return {
+            'success': True,
+            'product_id': product_id,
+            'product_name': product_name,
+            'quantity': quantity,
+            'error_message': None
+        }
+    
+    def get_available_products_with_status(self) -> dict:
+        """
+        دریافت وضعیت محصولات برای فروش
+        
+        Returns:
+            دیکشنری شامل: available_products (list), has_products (bool), message (str)
+        """
+        available_products = self.data_manager.get_available_products()
+        
+        if not available_products:
+            all_products = self.data_manager.get_all_products()
+            if not all_products:
+                return {
+                    'available_products': [],
+                    'has_products': False,
+                    'message': '❌ ابتدا باید محصول اضافه کنید.'
+                }
+            else:
+                return {
+                    'available_products': [],
+                    'has_products': False,
+                    'message': '❌ هیچ محصولی با موجودی کافی برای فروش وجود ندارد.\n\nلطفاً ابتدا موجودی محصولات را تکمیل کنید.'
+                }
+        
+        return {
+            'available_products': available_products,
+            'has_products': True,
+            'message': None
+        }

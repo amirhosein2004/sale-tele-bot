@@ -23,6 +23,8 @@ class ViewInventory:
         @self.bot.callback_query_handler(func=lambda call: call.data == "view_inventory")
         def view_inventory(call):
             user_id = call.message.chat.id
+            
+            # استفاده از سرویس برای دریافت و فرمت‌بندی محصولات
             products = self.data_manager.get_all_products()
             inventory_text = self.inventory_service.format_products_list(products)
             

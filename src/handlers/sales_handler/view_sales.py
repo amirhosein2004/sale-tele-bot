@@ -36,10 +36,11 @@ class ViewSales:
             
             set_user_processing(user_id, True)
             try:
-                sales = self.data_manager.get_all_sales()
+                # استفاده از سرویس برای دریافت لیست فروش‌ها
+                result = self.sales_service.get_sales_list_for_display()
                 
-                if not sales:
-                    self.bot.send_message(user_id, "📊 هیچ فروشی ثبت نشده است.", reply_markup=back_button())
+                if not result['has_sales']:
+                    self.bot.send_message(user_id, result['message'], reply_markup=back_button())
                     return
                 
                 set_user_state(user_id, 'view_sales')
@@ -47,7 +48,7 @@ class ViewSales:
                     "📊 لیست فروش‌ها\n\nفروش مورد نظر را انتخاب کنید:",
                     user_id,
                     call.message.message_id,
-                    reply_markup=sales_list_keyboard(sales)
+                    reply_markup=sales_list_keyboard(result['sales'])
                 )
             finally:
                 set_user_processing(user_id, False)

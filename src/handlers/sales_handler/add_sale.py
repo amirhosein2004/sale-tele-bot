@@ -12,6 +12,7 @@ from ..state import (
     set_user_processing
 )
 from ...services.sale_services import SalesService
+from ...services.inventory_services import InventoryService
 
 
 class AddSale:
@@ -21,6 +22,7 @@ class AddSale:
         self.bot = bot
         self.data_manager = data_manager
         self.sales_service = SalesService(data_manager)
+        self.inventory_service = InventoryService(data_manager)
     
     def register(self):
         """ثبت هندلرهای اضافه کردن فروش"""
@@ -38,27 +40,21 @@ class AddSale:
             
             set_user_processing(user_id, True)
             try:
-                available_products = self.data_manager.get_available_products()
+                # استفاده از سرویس برای دریافت وضعیت محصولات
+                status = self.inventory_service.get_available_products_with_status()
                 
-                if not available_products:
-                    all_products = self.data_manager.get_all_products()
-                    if not all_products:
-                        self.bot.send_message(
-                            user_id,
-                            "❌ ابتدا باید محصول اضافه کنید.",
-                            reply_markup=back_button()
-                        )
-                    else:
-                        self.bot.send_message(
-                            user_id,
-                            "❌ هیچ محصولی با موجودی کافی برای فروش وجود ندارد.\n\nلطفاً ابتدا موجودی محصولات را تکمیل کنید.",
-                            reply_markup=back_button()
-                        )
+                if not status['has_products']:
+                    self.bot.send_message(
+                        user_id,
+                        status['message'],
+                        reply_markup=back_button()
+                    )
                     return
                 
                 set_user_state(user_id, 'add_sale_product')
                 clear_user_data(user_id)
                 
+                available_products = status['available_products']
                 products_text = "📦 *محصولات موجود برای فروش:*\n\n"
                 for product in available_products:
                     status_icon = "✅" if product['quantity'] > 0 else "❌"

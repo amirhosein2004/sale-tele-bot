@@ -9,6 +9,7 @@ from ..state import (
     is_user_processing,
     set_user_processing
 )
+from ...services.inventory_services import InventoryService
 
 
 class AddProduct:
@@ -17,6 +18,7 @@ class AddProduct:
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
+        self.inventory_service = InventoryService(data_manager)
     
     def register(self):
         """ثبت هندلرهای اضافه کردن محصول"""
@@ -46,11 +48,6 @@ class AddProduct:
         user_id = message.chat.id
         product_name = message.text.strip()
         
-        if not product_name:
-            msg = self.bot.send_message(user_id, "❌ نام محصول نمی‌تواند خالی باشد. دوباره تلاش کنید:")
-            self.bot.register_next_step_handler(msg, self._process_product_name)
-            return
-        
         get_user_data(user_id)['product_name'] = product_name
         set_user_state(user_id, 'add_product_qty')
         
@@ -61,27 +58,19 @@ class AddProduct:
         """دریافت موجودی محصول"""
         user_id = message.chat.id
         user_data_dict = get_user_data(user_id)
+        product_name = user_data_dict.get('product_name')
         
-        try:
-            quantity = int(message.text.strip())
-            if quantity < 0:
-                raise ValueError
-        except ValueError:
-            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:")
+        # استفاده از سرویس برای ایجاد محصول
+        result = self.inventory_service.create_product(product_name, message.text.strip())
+        
+        if not result['success']:
+            msg = self.bot.send_message(user_id, f"{result['error_message']} دوباره تلاش کنید:")
             self.bot.register_next_step_handler(msg, self._process_product_quantity)
             return
         
-        product_name = user_data_dict.get('product_name')
-        if not product_name:
-            msg = self.bot.send_message(user_id, "❌ خطا: نام محصول یافت نشد. لطفاً دوباره تلاش کنید.")
-            self.bot.register_next_step_handler(msg, self._process_product_name)
-            return
-        
-        self.data_manager.add_product(product_name, quantity)
-        
         self.bot.send_message(
             user_id,
-            f"✅ محصول '{product_name}' با موجودی {quantity} عدد اضافه شد.",
+            f"✅ محصول '{result['product_name']}' با موجودی {result['quantity']} عدد اضافه شد.",
             reply_markup=back_button()
         )
         

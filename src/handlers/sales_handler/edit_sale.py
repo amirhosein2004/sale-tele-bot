@@ -37,12 +37,15 @@ class EditSale:
             set_user_processing(user_id, True)
             try:
                 sale_id = int(call.data.split("_")[2])
-                sale = self.data_manager.get_sale(sale_id)
                 
-                if not sale:
+                # استفاده از ولیدیشن برای بررسی وجود فروش
+                validation = self.sales_service.sale_validator.validate_sale_exists(sale_id)
+                
+                if not validation['is_valid']:
                     self.bot.send_message(user_id, "❌ فروش یافت نشد.", reply_markup=back_button())
                     return
                 
+                sale = validation['sale']
                 get_user_data(user_id)['selected_sale_id'] = sale_id
                 get_user_data(user_id)['sale_data'] = sale.copy()
                 set_user_state(user_id, 'edit_sale_quantity')

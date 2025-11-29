@@ -6,7 +6,6 @@
 - navigation.py: ناوبری و منوهای سریع
 """
 
-from ..state import data_manager
 from .common import CommonCommands
 from .confirmation import ConfirmationManager
 from .navigation import NavigationMenu
@@ -15,7 +14,7 @@ from .navigation import NavigationMenu
 class CommonHandler:
     """کلاس مدیریت هندلرهای مشترک - مختصر و منسق"""
     
-    def __init__(self, bot):
+    def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
         

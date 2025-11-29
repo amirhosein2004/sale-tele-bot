@@ -100,12 +100,15 @@ class EditProduct:
             set_user_processing(user_id, True)
             try:
                 product_id = int(call.data.split("_")[2])
-                product = self.data_manager.get_product(product_id)
                 
-                if not product:
+                # استفاده از ولیدیتور برای بررسی وجود محصول
+                validation = self.inventory_service.product_validator.validate_product_exists(product_id)
+                
+                if not validation['is_valid']:
                     self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
                     return
                 
+                product = validation['product']
                 get_user_data(user_id)['selected_product_id'] = product_id
                 set_user_state(user_id, 'edit_product_name')
                 
@@ -125,12 +128,15 @@ class EditProduct:
             set_user_processing(user_id, True)
             try:
                 product_id = int(call.data.split("_")[2])
-                product = self.data_manager.get_product(product_id)
                 
-                if not product:
+                # استفاده از ولیدیتور برای بررسی وجود محصول
+                validation = self.inventory_service.product_validator.validate_product_exists(product_id)
+                
+                if not validation['is_valid']:
                     self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button())
                     return
                 
+                product = validation['product']
                 get_user_data(user_id)['selected_product_id'] = product_id
                 set_user_state(user_id, 'edit_product_qty')
                 

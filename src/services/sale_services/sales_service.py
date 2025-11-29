@@ -283,3 +283,25 @@ class SalesService:
             'success': False,
             'error_message': '❌ خطا در بروزرسانی فروش!'
         }
+    
+    def get_sales_list_for_display(self) -> dict: # ✅
+        """
+        دریافت لیست فروش‌ها برای نمایش
+        
+        Returns:
+            دیکشنری شامل: has_sales (bool), sales (list), message (str)
+        """
+        sales = self.data_manager.get_all_sales()
+        
+        if not sales:
+            return {
+                'has_sales': False,
+                'sales': [],
+                'message': '📊 هیچ فروشی ثبت نشده است.'
+            }
+        
+        return {
+            'has_sales': True,
+            'sales': sales,
+            'message': None
+        }
