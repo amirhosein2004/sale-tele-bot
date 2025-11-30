@@ -3,10 +3,10 @@
 """
 
 from ...keyboards import (
-    products_list_keyboard,
     edit_product_keyboard,
     back_button,
-    cancel_button
+    cancel_button,
+    products_list_keyboard_with_pagination,
 )
 from ...states.state import (
     get_user_state,
@@ -21,6 +21,8 @@ from ...services.inventory_services import InventoryService
 class EditProduct:
     """مدیریت ویرایش محصول"""
     
+    ITEMS_PER_PAGE = 20
+    
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
@@ -29,6 +31,7 @@ class EditProduct:
     def register(self):
         """ثبت هندلرهای ویرایش محصول"""
         self._register_edit_product_handlers()
+        self._register_pagination_handler()
     
     def _register_edit_product_handlers(self):
         """هندلرهای ویرایش محصول"""
@@ -42,18 +45,29 @@ class EditProduct:
             
             set_user_processing(user_id, True)
             try:
-                products = self.data_manager.get_all_products()
+                # دریافت صفحه اول از سرویس
+                page_data = self.inventory_service.get_products_for_edit_page(page=1, items_per_page=self.ITEMS_PER_PAGE)
                 
-                if not products:
-                    self.bot.send_message(user_id, "❌ هیچ محصولی برای ویرایش وجود ندارد.", reply_markup=back_button("inventory"))
+                if not page_data['has_products']:
+                    self.bot.send_message(user_id, page_data['text'], reply_markup=back_button("inventory"))
                     return
                 
                 set_user_state(user_id, 'edit_product')
+                
+                # ساخت کیبورد با صفحه‌بندی
+                keyboard = products_list_keyboard_with_pagination(
+                    page_data['products'],
+                    page_data['page'],
+                    page_data['total_pages'],
+                    for_sale=False
+                )
+                
                 self.bot.edit_message_text(
-                    "✏️ محصول مورد نظر را انتخاب کنید:",
+                    page_data['text'],
                     user_id,
                     call.message.message_id,
-                    reply_markup=products_list_keyboard(products)
+                    reply_markup=keyboard,
+                    parse_mode="Markdown"
                 )
             finally:
                 set_user_processing(user_id, False)
@@ -188,3 +202,30 @@ class EditProduct:
         )
         
         set_user_state(user_id, 'inventory_menu')
+    
+    def _register_pagination_handler(self):
+        """هندلر صفحه‌بندی محصولات برای ویرایش"""
+        @self.bot.callback_query_handler(func=lambda call: call.data.startswith("edit_products_page_"))
+        def handle_edit_products_pagination(call):
+            user_id = call.message.chat.id
+            message_id = call.message.message_id
+            page = int(call.data.split("_")[-1])
+            
+            # دریافت صفحه از سرویس
+            page_data = self.inventory_service.get_products_for_edit_page(page=page, items_per_page=self.ITEMS_PER_PAGE)
+            
+            # ساخت کیبورد
+            keyboard = products_list_keyboard_with_pagination(
+                page_data['products'],
+                page_data['page'],
+                page_data['total_pages'],
+                for_sale=False
+            )
+            
+            self.bot.edit_message_text(
+                page_data['text'],
+                user_id,
+                message_id,
+                reply_markup=keyboard,
+                parse_mode="Markdown"
+            )

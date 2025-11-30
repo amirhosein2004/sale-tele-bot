@@ -2,7 +2,11 @@
 هندلرهای اضافه کردن فروش
 """
 
-from ...keyboards import products_list_keyboard, back_button, cancel_button
+from ...keyboards import (
+    back_button,
+    cancel_button,
+    products_list_keyboard_with_pagination,
+)
 from ...states.state import (
     set_user_state,
     get_user_state,
@@ -18,6 +22,8 @@ from ...services.inventory_services import InventoryService
 class AddSale:
     """مدیریت اضافه کردن فروش"""
     
+    ITEMS_PER_PAGE = 20
+    
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
@@ -27,6 +33,7 @@ class AddSale:
     def register(self):
         """ثبت هندلرهای اضافه کردن فروش"""
         self._register_add_sale_handlers()
+        self._register_pagination_handler()
     
     def _register_add_sale_handlers(self):
         """هندلرهای اضافه کردن فروش جدید"""
@@ -40,13 +47,13 @@ class AddSale:
             
             set_user_processing(user_id, True)
             try:
-                # استفاده از سرویس برای دریافت وضعیت محصولات
-                status = self.inventory_service.get_available_products_with_status()
+                # دریافت صفحه اول از سرویس
+                page_data = self.sales_service.get_products_for_sale_page(page=1, items_per_page=self.ITEMS_PER_PAGE)
                 
-                if not status['has_products']:
+                if not page_data['has_products']:
                     self.bot.send_message(
                         user_id,
-                        status['message'],
+                        page_data['text'],
                         reply_markup=back_button("sales")
                     )
                     return
@@ -54,23 +61,28 @@ class AddSale:
                 set_user_state(user_id, 'add_sale_product')
                 clear_user_data(user_id)
                 
-                available_products = status['available_products']
-                products_text = "📦 *محصولات موجود برای فروش:*\n\n"
-                for product in available_products:
-                    status_icon = "✅" if int(product['quantity']) > 0 else "❌"
-                    products_text += f"{status_icon} {product['name']} - موجودی: {product['quantity']} عدد\n"
+                # ساخت کیبورد با صفحه‌بندی
+                keyboard = products_list_keyboard_with_pagination(
+                    page_data['products'],
+                    page_data['page'],
+                    page_data['total_pages'],
+                    for_sale=True
+                )
                 
                 self.bot.edit_message_text(
-                    products_text + "\n\n📝 محصول مورد نظر را از لیست زیر انتخاب کنید:",
+                    page_data['text'],
                     user_id,
                     call.message.message_id,
-                    reply_markup=products_list_keyboard(available_products, for_sale=True),
+                    reply_markup=keyboard,
                     parse_mode="Markdown"
                 )
             finally:
                 set_user_processing(user_id, False)
         
-        @self.bot.callback_query_handler(func=lambda call: call.data.startswith("select_product_") and get_user_state(call.message.chat.id) == 'add_sale_product')
+        @self.bot.callback_query_handler(
+            func=lambda call: call.data.startswith("select_product_")
+            and get_user_state(call.message.chat.id) == 'add_sale_product'
+        )
         def select_product_for_sale(call):
             user_id = call.message.chat.id
             
@@ -236,3 +248,30 @@ class AddSale:
             self.bot.send_message(user_id, result['error_message'], reply_markup=back_button("sales"))
         
         set_user_state(user_id, 'sales_menu')
+    
+    def _register_pagination_handler(self):
+        """هندلر صفحه‌بندی محصولات برای فروش"""
+        @self.bot.callback_query_handler(func=lambda call: call.data.startswith("sale_products_page_"))
+        def handle_sale_products_pagination(call):
+            user_id = call.message.chat.id
+            message_id = call.message.message_id
+            page = int(call.data.split("_")[-1])
+            
+            # دریافت صفحه از سرویس
+            page_data = self.sales_service.get_products_for_sale_page(page=page, items_per_page=self.ITEMS_PER_PAGE)
+            
+            # ساخت کیبورد
+            keyboard = products_list_keyboard_with_pagination(
+                page_data['products'],
+                page_data['page'],
+                page_data['total_pages'],
+                for_sale=True
+            )
+            
+            self.bot.edit_message_text(
+                page_data['text'],
+                user_id,
+                message_id,
+                reply_markup=keyboard,
+                parse_mode="Markdown"
+            )

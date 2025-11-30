@@ -4,6 +4,7 @@
 
 from ...validations.deletion_validation import DeletionValidator
 from ...validations.sale_validation import SaleValidator, SaleInputValidator
+from ...utils.pagination import paginate
 
 
 class SalesService:
@@ -234,7 +235,7 @@ class SalesService:
         دریافت لیست فروش‌ها برای نمایش
         
         Returns:
-            دیکشنری شامل: has_sales (bool), sales (list), message (str)
+            دیکشنری شامل: has_sales (bool), sales (list), message (str), text (str)
         """
         sales = self.data_manager.get_all_sales()
         
@@ -242,11 +243,134 @@ class SalesService:
             return {
                 'has_sales': False,
                 'sales': [],
-                'message': '📊 هیچ فروشی ثبت نشده است.'
+                'message': '📊 هیچ فروشی ثبت نشده است.',
+                'text': None
             }
         
         return {
             'has_sales': True,
             'sales': sales,
+            'message': None,
+            'text': "📊 لیست فروش‌ها\n\nفروش مورد نظر را انتخاب کنید:"
+        }
+   
+    def get_sales_page(self, page: int = 1, items_per_page: int = 5) -> dict:
+        """
+        دریافت صفحه‌ای از فروش‌ها برای نمایش
+        
+        Args:
+            page: شماره صفحه
+            items_per_page: تعداد آیتم در هر صفحه
+            
+        Returns:
+            دیکشنری شامل: sales, page, total_pages, text, has_sales, message
+        """
+        all_sales = self.data_manager.get_all_sales()
+        
+        if not all_sales:
+            return {
+                'sales': [],
+                'page': 1,
+                'total_pages': 1,
+                'text': '📊 هیچ فروشی ثبت نشده است.',
+                'has_sales': False,
+                'message': '📊 هیچ فروشی ثبت نشده است.'
+            }
+        
+        # استفاده از تابع paginate
+        pagination_result = paginate(all_sales, page, items_per_page)
+        
+        # ساخت متن
+        text = f"📊 *لیست فروش‌ها* (صفحه {pagination_result['page']}/{pagination_result['total_pages']})\n\n"
+        text += "فروش مورد نظر را انتخاب کنید:"
+        
+        return {
+            'sales': pagination_result['items'],
+            'page': pagination_result['page'],
+            'total_pages': pagination_result['total_pages'],
+            'text': text,
+            'has_sales': True,
+            'message': None
+        }
+
+    def get_products_for_sale(self) -> dict:
+        """
+        دریافت لیست محصولات برای فروش
+        
+        Returns:
+            دیکشنری شامل: products, has_products, message
+        """
+        available_products = self.data_manager.get_available_products()
+        
+        if not available_products:
+            all_products = self.data_manager.get_all_products()
+            if not all_products:
+                return {
+                    'products': [],
+                    'has_products': False,
+                    'message': '❌ ابتدا باید محصول اضافه کنید.'
+                }
+            else:
+                return {
+                    'products': [],
+                    'has_products': False,
+                    'message': '❌ هیچ محصولی با موجودی کافی برای فروش وجود ندارد.\n\nلطفاً ابتدا موجودی محصولات را تکمیل کنید.'
+                }
+        
+        return {
+            'products': available_products,
+            'has_products': True,
+            'message': None
+        }
+
+    def get_products_for_sale_page(self, page: int = 1, items_per_page: int = 5) -> dict:
+        """
+        دریافت صفحه‌ای از محصولات برای فروش
+        
+        Args:
+            page: شماره صفحه
+            items_per_page: تعداد آیتم در هر صفحه
+            
+        Returns:
+            دیکشنری شامل: products, page, total_pages, text, has_products, message
+        """
+        available_products = self.data_manager.get_available_products()
+        
+        if not available_products:
+            all_products = self.data_manager.get_all_products()
+            if not all_products:
+                return {
+                    'products': [],
+                    'page': 1,
+                    'total_pages': 1,
+                    'text': '❌ ابتدا باید محصول اضافه کنید.',
+                    'has_products': False,
+                    'message': '❌ ابتدا باید محصول اضافه کنید.'
+                }
+            else:
+                return {
+                    'products': [],
+                    'page': 1,
+                    'total_pages': 1,
+                    'text': '❌ هیچ محصولی با موجودی کافی برای فروش وجود ندارد.\n\nلطفاً ابتدا موجودی محصولات را تکمیل کنید.',
+                    'has_products': False,
+                    'message': '❌ هیچ محصولی با موجودی کافی برای فروش وجود ندارد.\n\nلطفاً ابتدا موجودی محصولات را تکمیل کنید.'
+                }
+        
+        # استفاده از تابع paginate
+        pagination_result = paginate(available_products, page, items_per_page)
+        
+        # ساخت متن
+        text = f"📝 *محصول مورد نظر را از لیست زیر انتخاب کنید* (صفحه {pagination_result['page']}/{pagination_result['total_pages']})\n\n"
+        for product in pagination_result['items']:
+            quantity = int(product['quantity'])
+            text += f"✅ {product['name']} ({quantity} عدد)\n"
+        
+        return {
+            'products': pagination_result['items'],
+            'page': pagination_result['page'],
+            'total_pages': pagination_result['total_pages'],
+            'text': text,
+            'has_products': True,
             'message': None
         }

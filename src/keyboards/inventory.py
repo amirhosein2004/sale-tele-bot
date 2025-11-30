@@ -1,4 +1,5 @@
 from telebot import types
+from .pagination import pagination_keyboard
 
 def inventory_menu_keyboard():
     """صفحه‌کلید منوی موجودی"""
@@ -9,11 +10,21 @@ def inventory_menu_keyboard():
     markup.add(types.InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_main"))
     return markup
 
-def products_list_keyboard(products, disabled=False, for_sale=False):
-    """صفحه‌کلید لیست محصولات"""
+def edit_product_keyboard(product_id):
+    """صفحه‌کلید ویرایش محصول"""
     markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("✏️ ویرایش نام", callback_data=f"edit_name_{product_id}"))
+    markup.add(types.InlineKeyboardButton("📦 ویرایش موجودی", callback_data=f"edit_qty_{product_id}"))
+    markup.add(types.InlineKeyboardButton("🗑️ حذف محصول", callback_data=f"delete_product_{product_id}"))
+    markup.add(types.InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_inventory"))
+    return markup
+
+def products_list_keyboard_with_pagination(products, page: int, total_pages: int, for_sale=False):
+    """صفحه‌کلید لیست محصولات با صفحه‌بندی"""
+    markup = types.InlineKeyboardMarkup()
+    
+    # دکمه‌های محصولات
     for product in products:
-        # نمایش وضعیت موجودی
         quantity = int(product['quantity'])
         if for_sale:
             if quantity > 0:
@@ -27,21 +38,19 @@ def products_list_keyboard(products, disabled=False, for_sale=False):
             btn_text,
             callback_data=f"select_product_{product['id']}"
         )
-        if disabled or (for_sale and quantity <= 0):
-            btn.callback_data = "disabled"
         markup.add(btn)
     
-    back_btn = types.InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_inventory")
-    if disabled:
-        back_btn.callback_data = "disabled"
+    # دکمه‌های صفحه‌بندی
+    pagination_kb = pagination_keyboard("edit_products_page" if not for_sale else "sale_products_page", page, total_pages)
+    for row in pagination_kb.keyboard:
+        markup.row(*row)
+    
+    # دکمه بازگشت
+    if for_sale:
+        back_btn = types.InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_sales")
+    else:
+        back_btn = types.InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_inventory")
+    
     markup.add(back_btn)
-    return markup
-
-def edit_product_keyboard(product_id):
-    """صفحه‌کلید ویرایش محصول"""
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("✏️ ویرایش نام", callback_data=f"edit_name_{product_id}"))
-    markup.add(types.InlineKeyboardButton("📦 ویرایش موجودی", callback_data=f"edit_qty_{product_id}"))
-    markup.add(types.InlineKeyboardButton("🗑️ حذف محصول", callback_data=f"delete_product_{product_id}"))
-    markup.add(types.InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_inventory"))
+    
     return markup

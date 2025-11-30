@@ -35,9 +35,9 @@ def main_reply_keyboard():
     return markup
 
 
-def remove_keyboard():
-    """حذف صفحه‌کلید کشویی"""
-    return types.ReplyKeyboardRemove()
+# def remove_keyboard():
+#     """حذف صفحه‌کلید کشویی"""
+#     return types.ReplyKeyboardRemove()
 
 
 def quick_actions_keyboard():

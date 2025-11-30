@@ -4,6 +4,7 @@
 
 from ...validations.deletion_validation import DeletionValidator
 from ...validations.product_validation import ProductValidator
+from ...utils.pagination import paginate
 
 
 class InventoryService:
@@ -231,4 +232,104 @@ class InventoryService:
             'available_products': available_products,
             'has_products': True,
             'message': None
+        }
+    
+    def get_inventory_page(self, page: int = 1, items_per_page: int = 5) -> dict:
+        """
+        دریافت صفحه‌ای از موجودی محصولات
+        
+        Args:
+            page: شماره صفحه
+            items_per_page: تعداد آیتم در هر صفحه
+            
+        Returns:
+            دیکشنری شامل: products, page, total_pages, text
+        """
+        all_products = self.data_manager.get_all_products()
+        
+        if not all_products:
+            return {
+                'products': [],
+                'page': 1,
+                'total_pages': 1,
+                'text': "📦 *موجودی محصولات*\n\n❌ هیچ محصولی ثبت نشده است."
+            }
+        
+        # استفاده از تابع paginate
+        pagination_result = paginate(all_products, page, items_per_page)
+        
+        # ساخت متن
+        text = f"📦 *موجودی محصولات* (صفحه {pagination_result['page']}/{pagination_result['total_pages']})\n\n"
+        for product in pagination_result['items']:
+            quantity = int(product['quantity'])
+            status_icon = "✅" if quantity > 0 else "❌"
+            text += f"{status_icon} {product['name']} - موجودی: {quantity} عدد\n"
+        
+        return {
+            'products': pagination_result['items'],
+            'page': pagination_result['page'],
+            'total_pages': pagination_result['total_pages'],
+            'text': text
+        }
+    
+    def get_products_for_edit(self) -> dict:
+        """
+        دریافت لیست محصولات برای ویرایش
+        
+        Returns:
+            دیکشنری شامل: products, has_products, message
+        """
+        products = self.data_manager.get_all_products()
+        
+        if not products:
+            return {
+                'products': [],
+                'has_products': False,
+                'message': "❌ هیچ محصولی برای ویرایش وجود ندارد."
+            }
+        
+        return {
+            'products': products,
+            'has_products': True,
+            'message': None
+        }
+    
+    def get_products_for_edit_page(self, page: int = 1, items_per_page: int = 5) -> dict:
+        """
+        دریافت صفحه‌ای از محصولات برای ویرایش
+        
+        Args:
+            page: شماره صفحه
+            items_per_page: تعداد آیتم در هر صفحه
+            
+        Returns:
+            دیکشنری شامل: products, page, total_pages, text, has_products
+        """
+        all_products = self.data_manager.get_all_products()
+        
+        if not all_products:
+            return {
+                'products': [],
+                'page': 1,
+                'total_pages': 1,
+                'text': "❌ هیچ محصولی برای ویرایش وجود ندارد.",
+                'has_products': False
+            }
+        
+        # استفاده از تابع paginate
+        pagination_result = paginate(all_products, page, items_per_page)
+        
+        # ساخت متن
+        text = f"✏️ *محصول مورد نظر را انتخاب کنید* (صفحه {pagination_result['page']}/{pagination_result['total_pages']})\n\n"
+        for product in pagination_result['items']:
+            quantity = int(product['quantity'])
+            status_icon = "✅" if quantity > 0 else "❌"
+            text += f"{status_icon} {product['name']} - موجودی: {quantity} عدد\n"
+        
+        return {
+            'products': pagination_result['items'],
+            'page': pagination_result['page'],
+            'total_pages': pagination_result['total_pages'],
+            'text': text,
+            'has_products': True
         }

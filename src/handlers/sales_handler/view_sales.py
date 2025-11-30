@@ -2,7 +2,11 @@
 هندلرهای مشاهده فروش
 """
 
-from ...keyboards import sales_list_keyboard, edit_sale_keyboard, back_button
+from ...keyboards import (
+    edit_sale_keyboard,
+    back_button,
+    sales_list_keyboard_with_pagination,
+)
 from ...states.state import (
     set_user_state,
     get_user_data,
@@ -15,6 +19,8 @@ from ...services.sale_services import SalesService
 class ViewSales:
     """مدیریت مشاهده فروش"""
     
+    ITEMS_PER_PAGE = 20
+    
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
@@ -23,6 +29,7 @@ class ViewSales:
     def register(self):
         """ثبت هندلرهای مشاهده فروش"""
         self._register_view_sales_handlers()
+        self._register_pagination_handler()
     
     def _register_view_sales_handlers(self):
         """هندلرهای مشاهده فروش‌ها"""
@@ -36,19 +43,28 @@ class ViewSales:
             
             set_user_processing(user_id, True)
             try:
-                # استفاده از سرویس برای دریافت لیست فروش‌ها
-                result = self.sales_service.get_sales_list_for_display()
+                # دریافت صفحه اول از سرویس
+                page_data = self.sales_service.get_sales_page(page=1, items_per_page=self.ITEMS_PER_PAGE)
                 
-                if not result['has_sales']:
-                    self.bot.send_message(user_id, result['message'], reply_markup=back_button("sales"))
+                if not page_data['has_sales']:
+                    self.bot.send_message(user_id, page_data['message'], reply_markup=back_button("sales"))
                     return
                 
                 set_user_state(user_id, 'view_sales')
+                
+                # ساخت کیبورد با صفحه‌بندی
+                keyboard = sales_list_keyboard_with_pagination(
+                    page_data['sales'],
+                    page_data['page'],
+                    page_data['total_pages']
+                )
+                
                 self.bot.edit_message_text(
-                    "📊 لیست فروش‌ها\n\nفروش مورد نظر را انتخاب کنید:",
+                    page_data['text'],
                     user_id,
                     call.message.message_id,
-                    reply_markup=sales_list_keyboard(result['sales'])
+                    reply_markup=keyboard,
+                    parse_mode="Markdown"
                 )
             finally:
                 set_user_processing(user_id, False)
@@ -77,3 +93,29 @@ class ViewSales:
                 self.bot.send_message(user_id, result['text'], reply_markup=edit_sale_keyboard(sale_id))
             finally:
                 set_user_processing(user_id, False)
+    
+    def _register_pagination_handler(self):
+        """هندلر صفحه‌بندی فروش‌ها"""
+        @self.bot.callback_query_handler(func=lambda call: call.data.startswith("sales_page_"))
+        def handle_sales_pagination(call):
+            user_id = call.message.chat.id
+            message_id = call.message.message_id
+            page = int(call.data.split("_")[-1])
+            
+            # دریافت صفحه از سرویس
+            page_data = self.sales_service.get_sales_page(page=page, items_per_page=self.ITEMS_PER_PAGE)
+            
+            # ساخت کیبورد
+            keyboard = sales_list_keyboard_with_pagination(
+                page_data['sales'],
+                page_data['page'],
+                page_data['total_pages']
+            )
+            
+            self.bot.edit_message_text(
+                page_data['text'],
+                user_id,
+                message_id,
+                reply_markup=keyboard,
+                parse_mode="Markdown"
+            )

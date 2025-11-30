@@ -3,7 +3,7 @@ from .common import (
     main_menu_keyboard,
     back_button,
     main_reply_keyboard,
-    remove_keyboard,
+    # remove_keyboard,
     quick_actions_keyboard,
     confirmation_keyboard,
     help_keyboard,
@@ -14,15 +14,20 @@ from .common import (
 # Import from inventory keyboards
 from .inventory import (
     inventory_menu_keyboard,
-    products_list_keyboard,
-    edit_product_keyboard
+    edit_product_keyboard,
+    products_list_keyboard_with_pagination
 )
 
 # Import from sales keyboards
 from .sales import (
     sales_menu_keyboard,
-    sales_list_keyboard,
-    edit_sale_keyboard
+    edit_sale_keyboard,
+    sales_list_keyboard_with_pagination
+)
+
+# Import from pagination keyboards
+from .pagination import (
+    pagination_keyboard
 )
 
 __all__ = [
@@ -30,7 +35,7 @@ __all__ = [
     'main_menu_keyboard',
     'back_button',
     'main_reply_keyboard',
-    'remove_keyboard',
+    # 'remove_keyboard',
     'quick_actions_keyboard',
     'confirmation_keyboard',
     'help_keyboard',
@@ -39,11 +44,14 @@ __all__ = [
     
     # Inventory
     'inventory_menu_keyboard',
-    'products_list_keyboard',
     'edit_product_keyboard',
+    'products_list_keyboard_with_pagination',
     
     # Sales
     'sales_menu_keyboard',
-    'sales_list_keyboard',
     'edit_sale_keyboard',
+    'sales_list_keyboard_with_pagination',
+
+    # Pagination
+    "pagination_keyboard",
 ]

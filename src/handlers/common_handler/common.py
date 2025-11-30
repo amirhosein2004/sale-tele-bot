@@ -185,3 +185,9 @@ class CommonCommands:
                     START_MESSAGE,
                     reply_markup=main_menu_keyboard()
                 )
+
+                self.bot.send_message(
+                    user_id,
+                    START_SUBMENU,
+                    reply_markup=main_reply_keyboard()
+                )
