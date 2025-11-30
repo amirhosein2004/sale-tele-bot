@@ -167,6 +167,56 @@ class SalesService:
                 'remaining_qty': None
             }
         
+        # ولیدیشن تاریخ
+        date_validation = self.input_validator.validate_sale_date(sale_data.get('date', ''))
+        if not date_validation['is_valid']:
+            return {
+                'success': False,
+                'sale_id': None,
+                'summary': None,
+                'error_message': date_validation['error_message'],
+                'remaining_qty': None
+            }
+        
+        # ولیدیشن قیمت
+        price_validation = self.input_validator.validate_sale_price(sale_data.get('total_sale_price', 0))
+        if not price_validation['is_valid']:
+            return {
+                'success': False,
+                'sale_id': None,
+                'summary': None,
+                'error_message': price_validation['error_message'],
+                'remaining_qty': None
+            }
+        
+        # ولیدیشن هزینه خرید
+        cost_validation = self.input_validator.validate_sale_cost(sale_data.get('total_cost', 0))
+        if not cost_validation['is_valid']:
+            return {
+                'success': False,
+                'sale_id': None,
+                'summary': None,
+                'error_message': cost_validation['error_message'],
+                'remaining_qty': None
+            }
+        
+        # ولیدیشن هزینه جانبی
+        extra_cost_validation = self.input_validator.validate_sale_extra_cost(sale_data.get('extra_cost', 0))
+        if not extra_cost_validation['is_valid']:
+            return {
+                'success': False,
+                'sale_id': None,
+                'summary': None,
+                'error_message': extra_cost_validation['error_message'],
+                'remaining_qty': None
+            }
+        
+        # استفاده از داده‌های ولیدیشن‌شده
+        sale_data['date'] = date_validation['date']
+        sale_data['total_sale_price'] = price_validation['price']
+        sale_data['total_cost'] = cost_validation['cost']
+        sale_data['extra_cost'] = extra_cost_validation['extra_cost']
+        
         # کم کردن موجودی
         if not self.data_manager.reduce_inventory(product_id, quantity):
             return {
@@ -214,6 +264,44 @@ class SalesService:
                 'success': False,
                 'error_message': '❌ فروش یافت نشد.'
             }
+        
+        # ولیدیشن تاریخ
+        date_validation = self.input_validator.validate_sale_date(sale_data.get('date', ''))
+        if not date_validation['is_valid']:
+            return {
+                'success': False,
+                'error_message': date_validation['error_message']
+            }
+        
+        # ولیدیشن قیمت
+        price_validation = self.input_validator.validate_sale_price(sale_data.get('total_sale_price', 0))
+        if not price_validation['is_valid']:
+            return {
+                'success': False,
+                'error_message': price_validation['error_message']
+            }
+        
+        # ولیدیشن هزینه خرید
+        cost_validation = self.input_validator.validate_sale_cost(sale_data.get('total_cost', 0))
+        if not cost_validation['is_valid']:
+            return {
+                'success': False,
+                'error_message': cost_validation['error_message']
+            }
+        
+        # ولیدیشن هزینه جانبی
+        extra_cost_validation = self.input_validator.validate_sale_extra_cost(sale_data.get('extra_cost', 0))
+        if not extra_cost_validation['is_valid']:
+            return {
+                'success': False,
+                'error_message': extra_cost_validation['error_message']
+            }
+        
+        # استفاده از داده‌های ولیدیشن‌شده
+        sale_data['date'] = date_validation['date']
+        sale_data['total_sale_price'] = price_validation['price']
+        sale_data['total_cost'] = cost_validation['cost']
+        sale_data['extra_cost'] = extra_cost_validation['extra_cost']
         
         # محاسبه سود خالص
         sale_data['net_profit'] = sale_data['total_sale_price'] - sale_data['total_cost'] - sale_data['extra_cost']

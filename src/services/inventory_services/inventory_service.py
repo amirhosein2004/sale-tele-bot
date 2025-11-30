@@ -112,14 +112,17 @@ class InventoryService:
         product = product_validation['product']
         old_name = product['name']
         
+        # استفاده از نام ولیدیشن‌شده
+        validated_name = name_validation['name']
+        
         # بروزرسانی
-        self.data_manager.update_product_name(product_id, new_name)
+        self.data_manager.update_product_name(product_id, validated_name)
         
         return {
             'success': True,
             'product': product,
             'old_name': old_name,
-            'new_name': new_name,
+            'new_name': validated_name,
             'error_message': None
         }
     
@@ -154,13 +157,16 @@ class InventoryService:
         
         product = product_validation['product']
         
+        # استفاده از موجودی ولیدیشن‌شده
+        validated_quantity = quantity_validation['quantity']
+        
         # بروزرسانی
-        self.data_manager.update_product_quantity(product_id, new_quantity)
+        self.data_manager.update_product_quantity(product_id, validated_quantity)
         
         return {
             'success': True,
             'product': product,
-            'new_quantity': new_quantity,
+            'new_quantity': validated_quantity,
             'error_message': None
         }
     
@@ -193,14 +199,18 @@ class InventoryService:
                 'error_message': quantity_validation['error_message']
             }
         
+        # استفاده از داده‌های ولیدیشن‌شده
+        validated_name = name_validation['name']
+        validated_quantity = quantity_validation['quantity']
+        
         # اضافه کردن محصول
-        product_id = self.data_manager.add_product(product_name, quantity)
+        product_id = self.data_manager.add_product(validated_name, validated_quantity)
         
         return {
             'success': True,
             'product_id': product_id,
-            'product_name': product_name,
-            'quantity': quantity,
+            'product_name': validated_name,
+            'quantity': validated_quantity,
             'error_message': None
         }
     

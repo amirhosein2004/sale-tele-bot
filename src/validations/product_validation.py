@@ -38,7 +38,7 @@ class ProductValidator:
             name: نام محصول
             
         Returns:
-            دیکشنری شامل: is_valid (bool), error_message (str|None)
+            دیکشنری شامل: is_valid (bool), error_message (str|None), name (str|None)
         """
         if not name or not name.strip():
             return {
@@ -46,9 +46,25 @@ class ProductValidator:
                 'error_message': '❌ نام نمی‌تواند خالی باشد.'
             }
         
+        name_str = name.strip()
+        
+        # بررسی طول نام (حداقل 2، حداکثر 155 کاراکتر)
+        if len(name_str) < 2:
+            return {
+                'is_valid': False,
+                'error_message': '❌ نام باید حداقل 2 کاراکتر باشد.'
+            }
+        
+        if len(name_str) > 155:
+            return {
+                'is_valid': False,
+                'error_message': '❌ نام نمی‌تواند بیش از 155 کاراکتر باشد.'
+            }
+        
         return {
             'is_valid': True,
-            'error_message': None
+            'error_message': None,
+            'name': name_str
         }
     
     def validate_product_quantity(self, quantity: int) -> dict: # ✅ 
@@ -59,12 +75,17 @@ class ProductValidator:
             quantity: موجودی
             
         Returns:
-            دیکشنری شامل: is_valid (bool), error_message (str|None)
+            دیکشنری شامل: is_valid (bool), error_message (str|None), quantity (int|None)
         """
         try:
             qty = int(quantity)
             if qty < 0:
-                raise ValueError
+                raise ValueError("موجودی نمی‌تواند منفی باشد")
+            
+            # بررسی حد معقول (حداکثر 1 میلیون)
+            if qty > 1_000_000:
+                raise ValueError("موجودی بیش از حد است")
+                
         except (ValueError, TypeError):
             return {
                 'is_valid': False,
@@ -73,5 +94,6 @@ class ProductValidator:
         
         return {
             'is_valid': True,
-            'error_message': None
+            'error_message': None,
+            'quantity': qty
         }

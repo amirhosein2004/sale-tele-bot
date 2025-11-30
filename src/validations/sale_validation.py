@@ -50,12 +50,17 @@ class SaleInputValidator:
             available_quantity: موجودی موجود
             
         Returns:
-            دیکشنری شامل: is_valid (bool), error_message (str|None)
+            دیکشنری شامل: is_valid (bool), error_message (str|None), quantity (int|None)
         """
         try:
             qty = int(quantity)
             if qty <= 0:
-                raise ValueError
+                raise ValueError("تعداد باید مثبت باشد")
+            
+            # بررسی حد معقول (حداکثر 1 میلیون)
+            if qty > 1_000_000:
+                raise ValueError("تعداد بیش از حد است")
+                
         except (ValueError, TypeError):
             return {
                 'is_valid': False,
@@ -82,12 +87,17 @@ class SaleInputValidator:
             price: قیمت فروش
             
         Returns:
-            دیکشنری شامل: is_valid (bool), error_message (str|None)
+            دیکشنری شامل: is_valid (bool), error_message (str|None), price (float|None)
         """
         try:
             price_value = float(price)
             if price_value <= 0:
-                raise ValueError
+                raise ValueError("قیمت باید مثبت باشد")
+            
+            # بررسی حد معقول (حداکثر 1 میلیارد)
+            if price_value > 1_000_000_000:
+                raise ValueError("قیمت بیش از حد است")
+                
         except (ValueError, TypeError):
             return {
                 'is_valid': False,
@@ -108,12 +118,17 @@ class SaleInputValidator:
             cost: هزینه خرید
             
         Returns:
-            دیکشنری شامل: is_valid (bool), error_message (str|None)
+            دیکشنری شامل: is_valid (bool), error_message (str|None), cost (float|None)
         """
         try:
             cost_value = float(cost)
             if cost_value < 0:
-                raise ValueError
+                raise ValueError("هزینه نمی‌تواند منفی باشد")
+            
+            # بررسی حد معقول (حداکثر 1 میلیارد)
+            if cost_value > 1_000_000_000:
+                raise ValueError("هزینه بیش از حد است")
+                
         except (ValueError, TypeError):
             return {
                 'is_valid': False,
@@ -134,12 +149,17 @@ class SaleInputValidator:
             extra_cost: هزینه‌های جانبی
             
         Returns:
-            دیکشنری شامل: is_valid (bool), error_message (str|None)
+            دیکشنری شامل: is_valid (bool), error_message (str|None), extra_cost (float|None)
         """
         try:
             extra_cost_value = float(extra_cost)
             if extra_cost_value < 0:
-                raise ValueError
+                raise ValueError("هزینه جانبی نمی‌تواند منفی باشد")
+            
+            # بررسی حد معقول (حداکثر 1 میلیارد)
+            if extra_cost_value > 1_000_000_000:
+                raise ValueError("هزینه جانبی بیش از حد است")
+                
         except (ValueError, TypeError):
             return {
                 'is_valid': False,
@@ -154,13 +174,13 @@ class SaleInputValidator:
     
     def validate_sale_date(self, date: str) -> dict:
         """
-        ولیدیشن تاریخ فروش
+        ولیدیشن تاریخ فروش (فرمت: YYYY/MM/DD)
         
         Args:
             date: تاریخ فروش
             
         Returns:
-            دیکشنری شامل: is_valid (bool), error_message (str|None)
+            دیکشنری شامل: is_valid (bool), error_message (str|None), date (str|None)
         """
         if not date or not date.strip():
             return {
@@ -168,10 +188,42 @@ class SaleInputValidator:
                 'error_message': '❌ تاریخ نمی‌تواند خالی باشد.'
             }
         
+        date_str = date.strip()
+        
+        # بررسی فرمت YYYY/MM/DD
+        parts = date_str.split('/')
+        if len(parts) != 3:
+            return {
+                'is_valid': False,
+                'error_message': '❌ فرمت تاریخ اشتباه است.\n\n📅 لطفاً به این صورت وارد کنید: 1403/09/29'
+            }
+        
+        try:
+            year, month, day = parts
+            year_int = int(year)
+            month_int = int(month)
+            day_int = int(day)
+            
+            # بررسی محدوده‌های معقول
+            if year_int < 1300 or year_int > 1500:
+                raise ValueError("سال نامعتبر")
+            
+            if month_int < 1 or month_int > 12:
+                raise ValueError("ماه نامعتبر")
+            
+            if day_int < 1 or day_int > 31:
+                raise ValueError("روز نامعتبر")
+            
+        except (ValueError, TypeError):
+            return {
+                'is_valid': False,
+                'error_message': '❌ فرمت تاریخ اشتباه است.\n\n📅 لطفاً به این صورت وارد کنید: 1403/09/29'
+            }
+        
         return {
             'is_valid': True,
             'error_message': None,
-            'date': date.strip()
+            'date': date_str
         }
     
     def validate_product_availability(self, product_id: int, quantity: int) -> dict:

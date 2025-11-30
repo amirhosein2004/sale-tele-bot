@@ -46,9 +46,18 @@ class AddProduct:
     def _process_product_name(self, message):
         """دریافت نام محصول"""
         user_id = message.chat.id
-        product_name = message.text.strip()
+        product_name = message.text
         
-        get_user_data(user_id)['product_name'] = product_name
+        # ولیدیشن نام محصول
+        validation = self.inventory_service.product_validator.validate_product_name(product_name)
+        
+        if not validation['is_valid']:
+            msg = self.bot.send_message(user_id, f"{validation['error_message']} دوباره تلاش کنید:", reply_markup=cancel_button())
+            self.bot.register_next_step_handler(msg, self._process_product_name)
+            return
+        
+        # ذخیره نام ولیدیشن‌شده
+        get_user_data(user_id)['product_name'] = validation['name']
         set_user_state(user_id, 'add_product_qty')
         
         msg = self.bot.send_message(user_id, "📦 لطفاً موجودی اولیه را وارد کنید (عدد):", reply_markup=cancel_button())
@@ -59,12 +68,21 @@ class AddProduct:
         user_id = message.chat.id
         user_data_dict = get_user_data(user_id)
         product_name = user_data_dict.get('product_name')
+        quantity = message.text
         
-        # استفاده از سرویس برای ایجاد محصول
-        result = self.inventory_service.create_product(product_name, message.text.strip())
+        # ولیدیشن موجودی
+        quantity_validation = self.inventory_service.product_validator.validate_product_quantity(quantity)
+        
+        if not quantity_validation['is_valid']:
+            msg = self.bot.send_message(user_id, f"{quantity_validation['error_message']} دوباره تلاش کنید:", reply_markup=cancel_button())
+            self.bot.register_next_step_handler(msg, self._process_product_quantity)
+            return
+        
+        # استفاده از سرویس برای ایجاد محصول (داده‌های ولیدیشن‌شده)
+        result = self.inventory_service.create_product(product_name, quantity_validation['quantity'])
         
         if not result['success']:
-            msg = self.bot.send_message(user_id, f"{result['error_message']} دوباره تلاش کنید:")
+            msg = self.bot.send_message(user_id, f"{result['error_message']} دوباره تلاش کنید:", reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_product_quantity)
             return
         

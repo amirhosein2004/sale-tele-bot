@@ -163,14 +163,14 @@ class EditProduct:
     def _process_edit_name(self, message):
         """پردازش ویرایش نام محصول"""
         user_id = message.chat.id
-        new_name = message.text.strip()
+        new_name = message.text
         product_id = get_user_data(user_id).get('selected_product_id')
         
-        # استفاده از سرویس برای بروزرسانی
+        # استفاده از سرویس برای بروزرسانی (سرویس انجام ولیدیشن می‌دهد)
         result = self.inventory_service.update_product_name(product_id, new_name)
         
         if not result['success']:
-            msg = self.bot.send_message(user_id, f"{result['error_message']} دوباره تلاش کنید:")
+            msg = self.bot.send_message(user_id, f"{result['error_message']} دوباره تلاش کنید:", reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_edit_name)
             return
         
@@ -186,12 +186,13 @@ class EditProduct:
         """پردازش ویرایش موجودی"""
         user_id = message.chat.id
         product_id = get_user_data(user_id).get('selected_product_id')
+        new_quantity = message.text
         
-        # استفاده از سرویس برای بروزرسانی
-        result = self.inventory_service.update_product_quantity(product_id, message.text.strip())
+        # استفاده از سرویس برای بروزرسانی (سرویس انجام ولیدیشن می‌دهد)
+        result = self.inventory_service.update_product_quantity(product_id, new_quantity)
         
         if not result['success']:
-            msg = self.bot.send_message(user_id, f"{result['error_message']} دوباره تلاش کنید:")
+            msg = self.bot.send_message(user_id, f"{result['error_message']} دوباره تلاش کنید:", reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_edit_quantity)
             return
         

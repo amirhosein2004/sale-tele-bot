@@ -126,31 +126,33 @@ class AddSale:
         user_id = message.chat.id
         user_data_dict = get_user_data(user_id)
         available_qty = user_data_dict.get('available_quantity', 0)
+        quantity = message.text
         
         # استفاده از ولیدیشن سرویس
-        validation = self.sales_service.input_validator.validate_sale_quantity(message.text.strip(), available_qty)
+        validation = self.sales_service.input_validator.validate_sale_quantity(quantity, available_qty)
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, validation['error_message'])
+            msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_sale_quantity)
             return
         
-        quantity = validation['quantity']
+        validated_quantity = validation['quantity']
         product_id = user_data_dict['product_id']
         
         # بررسی نهایی موجودی
-        if not self.data_manager.check_inventory(product_id, quantity):
+        if not self.data_manager.check_inventory(product_id, validated_quantity):
             current_product = self.data_manager.get_product(product_id)
             current_qty = current_product['quantity'] if current_product else 0
             msg = self.bot.send_message(
                 user_id, 
-                f"❌ موجودی تغییر کرده است!\n\n📦 موجودی فعلی: {current_qty} عدد\n\nلطفاً تعداد جدید را وارد کنید:"
+                f"❌ موجودی تغییر کرده است!\n\n📦 موجودی فعلی: {current_qty} عدد\n\nلطفاً تعداد جدید را وارد کنید:",
+                reply_markup=cancel_button()
             )
             user_data_dict['available_quantity'] = current_qty
             self.bot.register_next_step_handler(msg, self._process_sale_quantity)
             return
         
-        user_data_dict['quantity'] = quantity
+        user_data_dict['quantity'] = validated_quantity
         set_user_state(user_id, 'add_sale_price')
         
         msg = self.bot.send_message(user_id, "💵 کل مبلغ فروش را وارد کنید:", reply_markup=cancel_button())
@@ -159,12 +161,13 @@ class AddSale:
     def _process_sale_price(self, message):
         """دریافت قیمت فروش"""
         user_id = message.chat.id
+        price = message.text
         
         # استفاده از ولیدیشن سرویس
-        validation = self.sales_service.input_validator.validate_sale_price(message.text.strip())
+        validation = self.sales_service.input_validator.validate_sale_price(price)
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, validation['error_message'])
+            msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_sale_price)
             return
         
@@ -177,12 +180,13 @@ class AddSale:
     def _process_sale_cost(self, message):
         """دریافت هزینه خرید"""
         user_id = message.chat.id
+        cost = message.text
         
         # استفاده از ولیدیشن سرویس
-        validation = self.sales_service.input_validator.validate_sale_cost(message.text.strip())
+        validation = self.sales_service.input_validator.validate_sale_cost(cost)
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, validation['error_message'])
+            msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_sale_cost)
             return
         
@@ -195,12 +199,13 @@ class AddSale:
     def _process_extra_cost(self, message):
         """دریافت هزینه‌های جانبی"""
         user_id = message.chat.id
+        extra_cost = message.text
         
         # استفاده از ولیدیشن سرویس
-        validation = self.sales_service.input_validator.validate_sale_extra_cost(message.text.strip())
+        validation = self.sales_service.input_validator.validate_sale_extra_cost(extra_cost)
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, validation['error_message'])
+            msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_extra_cost)
             return
         
@@ -213,12 +218,13 @@ class AddSale:
     def _process_sale_date(self, message):
         """دریافت تاریخ فروش"""
         user_id = message.chat.id
+        date = message.text
         
         # استفاده از ولیدیشن سرویس
-        validation = self.sales_service.input_validator.validate_sale_date(message.text.strip())
+        validation = self.sales_service.input_validator.validate_sale_date(date)
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, validation['error_message'])
+            msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_sale_date)
             return
         

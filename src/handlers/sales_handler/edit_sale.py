@@ -58,12 +58,13 @@ class EditSale:
     def _process_edit_sale_quantity(self, message):
         """پردازش ویرایش تعداد فروش"""
         user_id = message.chat.id
+        quantity = message.text
         
         # استفاده از ولیدیشن سرویس
-        validation = self.sales_service.input_validator.validate_sale_quantity(message.text.strip(), 999999)
+        validation = self.sales_service.input_validator.validate_sale_quantity(quantity, 999999)
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:", reply_markup=cancel_button())
+            msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_edit_sale_quantity)
             return
         
@@ -77,9 +78,10 @@ class EditSale:
     def _process_edit_sale_price(self, message):
         """پردازش ویرایش قیمت فروش"""
         user_id = message.chat.id
+        price = message.text
         
         # استفاده از ولیدیشن سرویس
-        validation = self.sales_service.input_validator.validate_sale_price(message.text.strip())
+        validation = self.sales_service.input_validator.validate_sale_price(price)
         
         if not validation['is_valid']:
             msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
@@ -97,9 +99,10 @@ class EditSale:
     def _process_edit_sale_cost(self, message):
         """پردازش ویرایش هزینه خرید"""
         user_id = message.chat.id
+        cost = message.text
         
         # استفاده از ولیدیشن سرویس
-        validation = self.sales_service.input_validator.validate_sale_cost(message.text.strip())
+        validation = self.sales_service.input_validator.validate_sale_cost(cost)
         
         if not validation['is_valid']:
             msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
@@ -116,9 +119,10 @@ class EditSale:
     def _process_edit_sale_extra_cost(self, message):
         """پردازش ویرایش هزینه‌های جانبی"""
         user_id = message.chat.id
+        extra_cost = message.text
         
         # استفاده از ولیدیشن سرویس
-        validation = self.sales_service.input_validator.validate_sale_extra_cost(message.text.strip())
+        validation = self.sales_service.input_validator.validate_sale_extra_cost(extra_cost)
         
         if not validation['is_valid']:
             msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
@@ -135,12 +139,13 @@ class EditSale:
     def _process_edit_sale_date(self, message):
         """پردازش ویرایش تاریخ فروش"""
         user_id = message.chat.id
+        date = message.text
         
         # استفاده از ولیدیشن سرویس
-        validation = self.sales_service.input_validator.validate_sale_date(message.text.strip())
+        validation = self.sales_service.input_validator.validate_sale_date(date)
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, validation['error_message'])
+            msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_edit_sale_date)
             return
         
