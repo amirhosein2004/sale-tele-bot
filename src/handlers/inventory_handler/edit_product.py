@@ -5,7 +5,8 @@
 from ...keyboards import (
     products_list_keyboard,
     edit_product_keyboard,
-    back_button
+    back_button,
+    cancel_button
 )
 from ...states.state import (
     get_user_state,
@@ -112,7 +113,7 @@ class EditProduct:
                 get_user_data(user_id)['selected_product_id'] = product_id
                 set_user_state(user_id, 'edit_product_name')
                 
-                msg = self.bot.send_message(user_id, f"📝 نام جدید را وارد کنید (فعلی: {product['name']}):")
+                msg = self.bot.send_message(user_id, f"📝 نام جدید را وارد کنید (فعلی: {product['name']}):", reply_markup=cancel_button())
                 self.bot.register_next_step_handler(msg, self._process_edit_name)
             finally:
                 set_user_processing(user_id, False)
@@ -140,7 +141,7 @@ class EditProduct:
                 get_user_data(user_id)['selected_product_id'] = product_id
                 set_user_state(user_id, 'edit_product_qty')
                 
-                msg = self.bot.send_message(user_id, f"📝 موجودی جدید را وارد کنید (فعلی: {product['quantity']}):")
+                msg = self.bot.send_message(user_id, f"📝 موجودی جدید را وارد کنید (فعلی: {product['quantity']}):", reply_markup=cancel_button())
                 self.bot.register_next_step_handler(msg, self._process_edit_quantity)
             finally:
                 set_user_processing(user_id, False)

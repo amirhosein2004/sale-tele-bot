@@ -2,7 +2,7 @@
 هندلرهای ویرایش فروش
 """
 
-from ...keyboards import back_button
+from ...keyboards import back_button, cancel_button
 from ...states.state import (
     set_user_state,
     get_user_data,
@@ -50,7 +50,7 @@ class EditSale:
                 get_user_data(user_id)['sale_data'] = sale.copy()
                 set_user_state(user_id, 'edit_sale_quantity')
                 
-                msg = self.bot.send_message(user_id, f"🔢 تعداد جدید را وارد کنید (فعلی: {sale['quantity']}):")
+                msg = self.bot.send_message(user_id, f"🔢 تعداد جدید را وارد کنید (فعلی: {sale['quantity']}):", reply_markup=cancel_button())
                 self.bot.register_next_step_handler(msg, self._process_edit_sale_quantity)
             finally:
                 set_user_processing(user_id, False)
@@ -63,7 +63,7 @@ class EditSale:
         validation = self.sales_service.input_validator.validate_sale_quantity(message.text.strip(), 999999)
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:")
+            msg = self.bot.send_message(user_id, "❌ لطفاً عدد صحیح و مثبت وارد کنید:", reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_edit_sale_quantity)
             return
         
@@ -71,7 +71,7 @@ class EditSale:
         user_data_dict['sale_data']['quantity'] = validation['quantity']
         set_user_state(user_id, 'edit_sale_price')
         
-        msg = self.bot.send_message(user_id, f"💵 کل مبلغ فروش جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['total_sale_price']}):")
+        msg = self.bot.send_message(user_id, f"💵 کل مبلغ فروش جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['total_sale_price']}):", reply_markup=cancel_button())
         self.bot.register_next_step_handler(msg, self._process_edit_sale_price)
     
     def _process_edit_sale_price(self, message):
@@ -82,7 +82,7 @@ class EditSale:
         validation = self.sales_service.input_validator.validate_sale_price(message.text.strip())
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, validation['error_message'])
+            msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_edit_sale_price)
             return
         
@@ -91,7 +91,7 @@ class EditSale:
         user_data_dict['sale_data']['sale_price'] = validation['price'] / user_data_dict['sale_data']['quantity']
         set_user_state(user_id, 'edit_sale_cost')
         
-        msg = self.bot.send_message(user_id, f"💸 کل مبلغ خرید جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['total_cost']}):")
+        msg = self.bot.send_message(user_id, f"💸 کل مبلغ خرید جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['total_cost']}):", reply_markup=cancel_button())
         self.bot.register_next_step_handler(msg, self._process_edit_sale_cost)
     
     def _process_edit_sale_cost(self, message):
@@ -102,7 +102,7 @@ class EditSale:
         validation = self.sales_service.input_validator.validate_sale_cost(message.text.strip())
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, validation['error_message'])
+            msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_edit_sale_cost)
             return
         
@@ -110,7 +110,7 @@ class EditSale:
         user_data_dict['sale_data']['total_cost'] = validation['cost']
         set_user_state(user_id, 'edit_sale_extra_cost')
         
-        msg = self.bot.send_message(user_id, f"🏷️ هزینه‌های جانبی جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['extra_cost']}):")
+        msg = self.bot.send_message(user_id, f"🏷️ هزینه‌های جانبی جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['extra_cost']}):", reply_markup=cancel_button())
         self.bot.register_next_step_handler(msg, self._process_edit_sale_extra_cost)
     
     def _process_edit_sale_extra_cost(self, message):
@@ -121,7 +121,7 @@ class EditSale:
         validation = self.sales_service.input_validator.validate_sale_extra_cost(message.text.strip())
         
         if not validation['is_valid']:
-            msg = self.bot.send_message(user_id, validation['error_message'])
+            msg = self.bot.send_message(user_id, validation['error_message'], reply_markup=cancel_button())
             self.bot.register_next_step_handler(msg, self._process_edit_sale_extra_cost)
             return
         
@@ -129,7 +129,7 @@ class EditSale:
         user_data_dict['sale_data']['extra_cost'] = validation['extra_cost']
         set_user_state(user_id, 'edit_sale_date')
         
-        msg = self.bot.send_message(user_id, f"📅 تاریخ جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['date']}):")
+        msg = self.bot.send_message(user_id, f"📅 تاریخ جدید را وارد کنید (فعلی: {user_data_dict['sale_data']['date']}):", reply_markup=cancel_button())
         self.bot.register_next_step_handler(msg, self._process_edit_sale_date)
     
     def _process_edit_sale_date(self, message):

@@ -18,7 +18,7 @@ class DataManager:
         self.products[product_id] = {
             'id': product_id,
             'name': name,
-            'quantity': quantity
+            'quantity': int(quantity)
         }
         return product_id
     
@@ -40,7 +40,7 @@ class DataManager:
     def update_product_quantity(self, product_id, new_quantity):
         """به‌روزرسانی موجودی محصول"""
         if product_id in self.products:
-            self.products[product_id]['quantity'] = new_quantity
+            self.products[product_id]['quantity'] = int(new_quantity)
             return True
         return False
     

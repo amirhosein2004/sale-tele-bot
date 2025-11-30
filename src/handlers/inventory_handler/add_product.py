@@ -2,7 +2,7 @@
 هندلرهای اضافه کردن محصول
 """
 
-from ...keyboards import back_button
+from ...keyboards import back_button, cancel_button
 from ...states.state import (
     set_user_state,
     get_user_data,
@@ -38,7 +38,7 @@ class AddProduct:
             try:
                 set_user_state(user_id, 'add_product_name')
                 
-                msg = self.bot.send_message(user_id, "📝 لطفاً نام محصول را وارد کنید:")
+                msg = self.bot.send_message(user_id, "📝 لطفاً نام محصول را وارد کنید:", reply_markup=cancel_button())
                 self.bot.register_next_step_handler(msg, self._process_product_name)
             finally:
                 set_user_processing(user_id, False)
@@ -51,7 +51,7 @@ class AddProduct:
         get_user_data(user_id)['product_name'] = product_name
         set_user_state(user_id, 'add_product_qty')
         
-        msg = self.bot.send_message(user_id, "📦 لطفاً موجودی اولیه را وارد کنید (عدد):")
+        msg = self.bot.send_message(user_id, "📦 لطفاً موجودی اولیه را وارد کنید (عدد):", reply_markup=cancel_button())
         self.bot.register_next_step_handler(msg, self._process_product_quantity)
     
     def _process_product_quantity(self, message):

@@ -40,10 +40,11 @@ class ReportService:
             for product in summary['low_stock_products']:
                 text += f"  • {product['name']}: {product['quantity']} عدد\n"
         
-        text += "\n📝 لیست کامل:\n"
+        text += "\n📏 لیست کامل:\n"
         for product in products:
-            status_icon = "✅" if product['quantity'] > 0 else "❌"
-            text += f"{status_icon} {product['name']}: {product['quantity']} عدد\n"
+            qty = int(product['quantity'])
+            status_icon = "✅" if qty > 0 else "❌"
+            text += f"{status_icon} {product['name']}: {qty} عدد\n"
         
         return text
     

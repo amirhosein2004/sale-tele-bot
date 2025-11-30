@@ -7,7 +7,8 @@ from .common import (
     quick_actions_keyboard,
     confirmation_keyboard,
     help_keyboard,
-    share_keyboard
+    share_keyboard,
+    cancel_button
 )
 
 # Import from inventory keyboards
@@ -34,6 +35,7 @@ __all__ = [
     'confirmation_keyboard',
     'help_keyboard',
     'share_keyboard',
+    'cancel_button',
     
     # Inventory
     'inventory_menu_keyboard',

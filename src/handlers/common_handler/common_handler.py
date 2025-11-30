@@ -6,6 +6,7 @@
 - navigation.py: ناوبری و منوهای سریع
 """
 
+from .cancel import CancelOperations
 from .common import CommonCommands
 from .confirmation import ConfirmationManager
 from .navigation import NavigationMenu
@@ -19,12 +20,15 @@ class CommonHandler:
         self.data_manager = data_manager
         
         # ایجاد نمونه‌های ماژول‌ها
+        # ثبت هندلر Cancel global (باید اول ثبت شود)
+        self.cancel_operations = CancelOperations(bot, data_manager)
         self.common_commands = CommonCommands(bot, data_manager)
         self.confirmation = ConfirmationManager(bot, data_manager)
         self.navigation = NavigationMenu(bot, data_manager)
     
     def register(self):
         """ثبت تمام هندلرهای مشترک از طریق ماژول‌ها"""
+        self.cancel_operations.register()
         self.common_commands.register()
         self.confirmation.register()
         self.navigation.register()

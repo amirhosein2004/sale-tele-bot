@@ -2,7 +2,7 @@
 هندلرهای اضافه کردن فروش
 """
 
-from ...keyboards import products_list_keyboard, back_button
+from ...keyboards import products_list_keyboard, back_button, cancel_button
 from ...states.state import (
     set_user_state,
     get_user_state,
@@ -87,7 +87,7 @@ class AddSale:
                     self.bot.send_message(user_id, "❌ محصول یافت نشد.", reply_markup=back_button("sales"))
                     return
                 
-                if product['quantity'] <= 0:
+                if int(product['quantity']) <= 0:
                     self.bot.send_message(
                         user_id, 
                         f"❌ محصول '{product['name']}' موجودی ندارد.\n\nلطفاً محصول دیگری انتخاب کنید یا ابتدا موجودی را تکمیل کنید.",
@@ -102,7 +102,8 @@ class AddSale:
                 
                 msg = self.bot.send_message(
                     user_id, 
-                    f"🔢 تعداد فروش را وارد کنید:\n\n📦 موجودی فعلی: {product['quantity']} عدد\n💡 حداکثر قابل فروش: {product['quantity']} عدد"
+                    f"🔢 تعداد فروش را وارد کنید:\n\n📦 موجودی فعلی: {product['quantity']} عدد\n💡 حداکثر قابل فروش: {product['quantity']} عدد",
+                    reply_markup=cancel_button()
                 )
                 self.bot.register_next_step_handler(msg, self._process_sale_quantity)
             finally:
@@ -140,7 +141,7 @@ class AddSale:
         user_data_dict['quantity'] = quantity
         set_user_state(user_id, 'add_sale_price')
         
-        msg = self.bot.send_message(user_id, "💵 کل مبلغ فروش را وارد کنید:")
+        msg = self.bot.send_message(user_id, "💵 کل مبلغ فروش را وارد کنید:", reply_markup=cancel_button())
         self.bot.register_next_step_handler(msg, self._process_sale_price)
     
     def _process_sale_price(self, message):
@@ -158,7 +159,7 @@ class AddSale:
         get_user_data(user_id)['total_sale_price'] = validation['price']
         set_user_state(user_id, 'add_sale_cost')
         
-        msg = self.bot.send_message(user_id, "💸 کل مبلغ خرید (هزینه تهیه) را وارد کنید:")
+        msg = self.bot.send_message(user_id, "💸 کل مبلغ خرید (هزینه تهیه) را وارد کنید:", reply_markup=cancel_button())
         self.bot.register_next_step_handler(msg, self._process_sale_cost)
     
     def _process_sale_cost(self, message):
@@ -176,7 +177,7 @@ class AddSale:
         get_user_data(user_id)['total_cost'] = validation['cost']
         set_user_state(user_id, 'add_sale_extra_cost')
         
-        msg = self.bot.send_message(user_id, "🏷️ هزینه‌های جانبی را وارد کنید (مثل حمل‌ونقل):")
+        msg = self.bot.send_message(user_id, "🏷️ هزینه‌های جانبی را وارد کنید (مثل حمل‌ونقل):", reply_markup=cancel_button())
         self.bot.register_next_step_handler(msg, self._process_extra_cost)
     
     def _process_extra_cost(self, message):
@@ -194,7 +195,7 @@ class AddSale:
         get_user_data(user_id)['extra_cost'] = validation['extra_cost']
         set_user_state(user_id, 'add_sale_date')
         
-        msg = self.bot.send_message(user_id, "📅 تاریخ فروش را وارد کنید (مثال: 1403/09/29):")
+        msg = self.bot.send_message(user_id, "📅 تاریخ فروش را وارد کنید (مثال: 1403/09/29):", reply_markup=cancel_button())
         self.bot.register_next_step_handler(msg, self._process_sale_date)
     
     def _process_sale_date(self, message):

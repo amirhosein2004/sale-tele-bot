@@ -82,3 +82,10 @@ def share_keyboard():
     markup.add(types.InlineKeyboardButton("📊 اشتراک گزارش کامل", callback_data="share_full_report"))
     markup.add(types.InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_main"))
     return markup
+
+
+def cancel_button():
+    """دکمه Inline لغو عملیات"""
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("❌ لغو عملیات", callback_data="cancel_operation"))
+    return markup
