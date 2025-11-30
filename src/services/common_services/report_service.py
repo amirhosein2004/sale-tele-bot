@@ -2,6 +2,8 @@
 سرویس تولید گزارش‌ها
 """
 
+from ...utils.pagination import paginate
+
 
 class ReportService:
     """سرویس تولید و فرمت‌بندی گزارش‌ها"""
@@ -105,3 +107,78 @@ class ReportService:
         text += f"  • سود خالص: {sales_summary['total_profit']}\n"
         
         return text
+    
+    def get_full_report_page(self, page: int = 1, items_per_page: int = 5) -> dict:
+        """
+        دریافت صفحه‌ای از گزارش کامل
+        
+        Args:
+            page: شماره صفحه
+            items_per_page: تعداد آیتم در هر صفحه
+            
+        Returns:
+            دیکشنری شامل: text, page, total_pages
+        """
+        # دریافت تمام محصولات
+        products = self.data_manager.get_all_products()
+        
+        # محاسبه خلاصه‌ها (ثابت در تمام صفحات)
+        inventory_summary = self.inventory_service.calculate_inventory_summary()
+        sales_summary = self.sales_service.calculate_sales_summary()
+        
+        # ساخت لیست محصولات برای صفحه‌بندی (کم‌موجود اول، سپس عادی)
+        product_items = []
+        
+        # اضافه کردن محصولات کم‌موجود اول
+        if inventory_summary['low_stock_products']:
+            for product in inventory_summary['low_stock_products']:
+                qty = int(product['quantity'])
+                product_items.append({
+                    'type': 'product',
+                    'text': f"⚠️ {product['name']}: {qty} عدد"
+                })
+        
+        # اضافه کردن باقی محصولات
+        if products:
+            for product in products:
+                qty = int(product['quantity'])
+                # اگر محصول در لیست کم‌موجود نیست
+                if qty > 5:
+                    status_icon = "✅"
+                    product_items.append({
+                        'type': 'product',
+                        'text': f"{status_icon} {product['name']}: {qty} عدد"
+                    })
+        
+        # صفحه‌بندی برای تمام محصولات
+        pagination_result = paginate(product_items, page, items_per_page)
+        
+        # ساخت متن صفحه (خلاصه‌ها ثابت + محصولات صفحه‌بندی‌شده)
+        text = f"📊 *گزارش کامل فروشگاه*\n\n"
+        
+        # خلاصه موجودی (ثابت)
+        text += f"📦 *خلاصه موجودی*\n"
+        text += f"• کل محصولات: {inventory_summary['total_products']}\n"
+        text += f"• کل موجودی: {inventory_summary['total_items']} عدد\n"
+        text += f"• محصولات کم‌موجود: {inventory_summary['low_stock_count']}\n\n"
+        
+        # لیست محصولات (صفحه‌بندی‌شده - کم‌موجود و عادی با هم)
+        if product_items:
+            text += f"📏 *لیست محصولات* (صفحه {pagination_result['page']}/{pagination_result['total_pages']})\n"
+            for item in pagination_result['items']:
+                text += item['text'] + "\n"
+            text += "\n"
+        
+        # خلاصه فروش‌ها (ثابت)
+        text += f"💳 *خلاصه فروش‌ها*\n"
+        text += f"• تعداد فروش: {sales_summary['total_sales']}\n"
+        text += f"• کل درآمد: {sales_summary['total_revenue']}\n"
+        text += f"• کل هزینه: {sales_summary['total_cost']}\n"
+        text += f"• هزینه‌های جانبی: {sales_summary['total_extra_cost']}\n"
+        text += f"• سود خالص: {sales_summary['total_profit']}"
+        
+        return {
+            'text': text,
+            'page': pagination_result['page'],
+            'total_pages': pagination_result['total_pages']
+        }

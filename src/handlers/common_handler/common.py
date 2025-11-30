@@ -10,8 +10,10 @@ from ...keyboards import (
     share_keyboard,
     inventory_menu_keyboard,
     sales_menu_keyboard,
-    quick_actions_keyboard
+    quick_actions_keyboard,
+    back_button
 )
+from ...keyboards.pagination import pagination_keyboard
 from ...states.state import (
     set_user_state,
     clear_user_data,
@@ -33,6 +35,8 @@ from ...services.sale_services import SalesService
 class CommonCommands:
     """مدیریت دستورات اساسی"""
     
+    ITEMS_PER_PAGE = 20
+    
     def __init__(self, bot, data_manager):
         self.bot = bot
         self.data_manager = data_manager
@@ -52,6 +56,7 @@ class CommonCommands:
         self._register_back_to_main_handler()
         self._register_help_handler()
         self._register_share_report_handler()
+        self._register_share_report_pagination_handler()
         self._register_text_message_handler()
     
     def _register_start_handler(self):
@@ -104,20 +109,51 @@ class CommonCommands:
             )
     
     def _register_share_report_handler(self):
-        """اشتراک‌گذاری گزارش"""
+        """اشتراک‌گذاری گزارش کامل"""
         @self.bot.callback_query_handler(func=lambda call: call.data == "share_full_report")
         def share_report(call):
             user_id = call.message.chat.id
+            message_id = call.message.message_id
             
-            report_text = self.report_service.generate_full_report()
+            # دریافت صفحه اول از سرویس
+            page_data = self.report_service.get_full_report_page(page=1, items_per_page=self.ITEMS_PER_PAGE)
             
-            self.bot.send_message(
+            # ساخت کیبورد
+            keyboard = pagination_keyboard("report_page", page_data['page'], page_data['total_pages'])
+            keyboard.add(back_button("share").keyboard[0][0])
+            
+            self.bot.edit_message_text(
+                page_data['text'],
                 user_id,
-                report_text,
-                parse_mode="Markdown"
+                message_id,
+                parse_mode="Markdown",
+                reply_markup=keyboard
             )
             
             self.bot.answer_callback_query(call.id, REPORT_SHARED_MESSAGE)
+    
+    def _register_share_report_pagination_handler(self):
+        """هندلر صفحه‌بندی گزارش کامل"""
+        @self.bot.callback_query_handler(func=lambda call: call.data.startswith("report_page_"))
+        def handle_report_pagination(call):
+            user_id = call.message.chat.id
+            message_id = call.message.message_id
+            page = int(call.data.split("_")[-1])
+            
+            # دریافت صفحه از سرویس
+            page_data = self.report_service.get_full_report_page(page=page, items_per_page=self.ITEMS_PER_PAGE)
+            
+            # ساخت کیبورد
+            keyboard = pagination_keyboard("report_page", page_data['page'], page_data['total_pages'])
+            keyboard.add(back_button("share").keyboard[0][0])
+            
+            self.bot.edit_message_text(
+                page_data['text'],
+                user_id,
+                message_id,
+                parse_mode="Markdown",
+                reply_markup=keyboard
+            )
     
     def _register_text_message_handler(self):
         """هندلر پیام‌های متنی(کیبورد کشویی)"""
