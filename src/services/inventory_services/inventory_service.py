@@ -51,7 +51,7 @@ class InventoryService:
         
         total_products = len(products)
         total_items = sum(p.get('quantity', 0) for p in products)
-        low_stock = [p for p in products if 0 < p.get('quantity', 0) <= 5]
+        low_stock = [p for p in products if 0 < p.get('quantity', 0) <= 2]
         
         return {
             'total_products': total_products,

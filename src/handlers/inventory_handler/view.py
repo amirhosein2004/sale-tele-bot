@@ -10,7 +10,7 @@ from ...services.inventory_services import InventoryService
 class ViewInventory:
     """مدیریت مشاهده موجودی"""
     
-    ITEMS_PER_PAGE = 5
+    ITEMS_PER_PAGE = 20
     
     def __init__(self, bot, data_manager):
         self.bot = bot

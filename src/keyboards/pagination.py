@@ -7,7 +7,7 @@ def pagination_keyboard(action_prefix: str, page: int, total_pages: int):
 
     action_prefix: مثل "products_page" یا "sales_page"
     """
-    keyboard = InlineKeyboardMarkup(row_width=2)
+    keyboard = InlineKeyboardMarkup()
 
     buttons = []
 
@@ -21,7 +21,7 @@ def pagination_keyboard(action_prefix: str, page: int, total_pages: int):
             InlineKeyboardButton("بعدی ➡️", callback_data=f"{action_prefix}_{page + 1}")
         )
 
-    for btn in buttons:
-        keyboard.add(btn)
+    if buttons:
+        keyboard.row(*buttons)
 
     return keyboard

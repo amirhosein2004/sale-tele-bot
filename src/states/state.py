@@ -7,7 +7,7 @@ data_manager = DataManager()
 
 import random
 
-for i in range(1, 30):
+for i in range(1, 300):
     name = f"Product {i}"
     quantity = random.randint(1, 50)
     data_manager.add_product(name, quantity)

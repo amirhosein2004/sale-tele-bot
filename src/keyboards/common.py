@@ -69,8 +69,8 @@ def help_keyboard():
     """دکمه‌های راهنما"""
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("📖 راهنمای استفاده", callback_data="show_help"))
-    markup.add(types.InlineKeyboardButton("📞 پشتیبانی", url="https://t.me/your_support"))
-    markup.add(types.InlineKeyboardButton("🌐 وب‌سایت", url="https://your-website.com"))
+    markup.add(types.InlineKeyboardButton("📞 پشتیبانی", url="https://t.me/Pinkmoon_admin"))
+    markup.add(types.InlineKeyboardButton("🌐 اینستاگرام", url="https://www.instagram.com/pink_.moon2025"))
     markup.add(types.InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_main"))
     return markup
 

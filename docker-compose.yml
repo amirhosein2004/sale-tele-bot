@@ -26,6 +26,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - .:/app
     networks:
       - bot_network
     restart: unless-stopped
