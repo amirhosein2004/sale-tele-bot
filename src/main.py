@@ -1,8 +1,8 @@
 # فایل اصلی ربات
 
 import telebot
-from . import config
-from .handlers import register_handlers  
+from .core import config
+from .bot.handlers import register_handlers  
 
 
 # اگر پراکسی وجود داشت

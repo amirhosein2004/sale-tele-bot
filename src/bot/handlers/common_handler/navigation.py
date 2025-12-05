@@ -7,7 +7,7 @@ from ...keyboards import (
     quick_actions_keyboard,
     share_keyboard
 )
-from ...utils import (
+from ....utils import (
     QUICK_ACTIONS_TITLE,
     SHARE_MENU_TITLE,
     DISABLED_BUTTON_MESSAGE,

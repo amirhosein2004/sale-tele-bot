@@ -19,7 +19,7 @@ from ...states.state import (
     clear_user_data,
     is_user_processing
 )
-from ...utils import (
+from ....utils import (
     HELP_TEXT,
     START_MESSAGE,
     START_SUBMENU,
@@ -27,9 +27,9 @@ from ...utils import (
     QUICK_ACTIONS_TITLE,
     SHARE_MENU_TITLE
 )
-from ...services.common_services import ReportService
-from ...services.inventory_services import InventoryService
-from ...services.sale_services import SalesService
+from ....services.common_services import ReportService
+from ....services.inventory_services import InventoryService
+from ....services.sale_services import SalesService
 
 
 class CommonCommands:

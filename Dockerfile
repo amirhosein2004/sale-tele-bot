@@ -1,6 +1,9 @@
 # Use official Python runtime as base image
 FROM python:3.12-slim
 
+# Set Python to run in unbuffered mode
+ENV PYTHONUNBUFFERED=1
+
 # Set working directory
 WORKDIR /app
 

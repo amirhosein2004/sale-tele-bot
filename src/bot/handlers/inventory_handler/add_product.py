@@ -9,7 +9,7 @@ from ...states.state import (
     is_user_processing,
     set_user_processing
 )
-from ...services.inventory_services import InventoryService
+from ....services.inventory_services import InventoryService
 
 
 class AddProduct:

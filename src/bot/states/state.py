@@ -1,5 +1,5 @@
 # مدیریت وضعیت کاربران و instance های مشترک
-from ..data_manager import DataManager
+from ...data_manager import DataManager
 
 # ایجاد یک instance مشترک از DataManager
 data_manager = DataManager()

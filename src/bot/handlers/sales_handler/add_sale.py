@@ -15,8 +15,8 @@ from ...states.state import (
     is_user_processing,
     set_user_processing
 )
-from ...services.sale_services import SalesService
-from ...services.inventory_services import InventoryService
+from ....services.sale_services import SalesService
+from ....services.inventory_services import InventoryService
 
 
 class AddSale:

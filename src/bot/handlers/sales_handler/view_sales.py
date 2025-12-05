@@ -13,7 +13,7 @@ from ...states.state import (
     is_user_processing,
     set_user_processing
 )
-from ...services.sale_services import SalesService
+from ....services.sale_services import SalesService
 
 
 class ViewSales:

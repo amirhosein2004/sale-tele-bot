@@ -4,7 +4,7 @@
 
 from ...keyboards import back_button
 from ...keyboards.pagination import pagination_keyboard
-from ...services.inventory_services import InventoryService
+from ....services.inventory_services import InventoryService
 
 
 class ViewInventory:

@@ -9,14 +9,14 @@ from ...states.state import (
     is_user_processing,
     set_user_processing
 )
-from ...utils import (
+from ....utils import (
     ERROR_MESSAGE,
     NOT_FOUND_MESSAGE,
     CANCEL_MESSAGE,
     PROCESSING_MESSAGE
 )
-from ...services.inventory_services import InventoryService
-from ...services.sale_services import SalesService
+from ....services.inventory_services import InventoryService
+from ....services.sale_services import SalesService
 
 
 class ConfirmationManager:
