@@ -1,29 +1,30 @@
 # فایل اصلی ربات
 
 import telebot
-from .core import config
-from .bot.handlers import register_handlers  
+from .core.config import settings
+from .bot.handlers import register_handlers
 
 
 # اگر پراکسی وجود داشت
-if config.PROXY:
-    proxy_url = config.PROXY["url"]
+if settings.PROXY:
+    proxy_config = settings.PROXY
+    proxy_url = proxy_config.url
 
     # اگر پراکسی user/pass میخواست و داشت
-    if config.PROXY.get("username") and config.PROXY.get("password"):
+    if proxy_config.username and proxy_config.password:
         telebot.apihelper.proxy = {
-            "http":  f"socks5://{config.PROXY['username']}:{config.PROXY['password']}@{proxy_url}",
-            "https": f"socks5://{config.PROXY['username']}:{config.PROXY['password']}@{proxy_url}",
+            "http": f"socks5://{proxy_config.username}:{proxy_config.password}@{proxy_url}",
+            "https": f"socks5://{proxy_config.username}:{proxy_config.password}@{proxy_url}",
         }
     else:
         # پراکسی بدون user/pass
         telebot.apihelper.proxy = {
-            "http":  f"socks5://{proxy_url}",
+            "http": f"socks5://{proxy_url}",
             "https": f"socks5://{proxy_url}",
         }
 
 # ایجاد نمونه ربات
-bot = telebot.TeleBot(config.BOT_TOKEN)
+bot = telebot.TeleBot(settings.BOT_TOKEN)
 
 # ثبت تمام هندلرها
 register_handlers(bot)
