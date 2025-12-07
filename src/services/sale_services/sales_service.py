@@ -63,7 +63,7 @@ class SalesService:
             f"📅 تاریخ: {sale_data['date']}\n"
         )
     
-    def calculate_sales_summary(self) -> dict: # ✅ 
+    def calculate_sales_summary(self) -> dict: 
         """
         محاسبه خلاصه فروش‌ها
         

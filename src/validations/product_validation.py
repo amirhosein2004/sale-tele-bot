@@ -13,7 +13,7 @@ class ProductValidator:
         """
         self.data_manager = data_manager
     
-    def validate_product_exists(self, product_id: int) -> dict: # ✅ 
+    def validate_product_exists(self, product_id: int) -> dict: 
         """
         ولیدیشن وجود محصول
         
@@ -30,7 +30,7 @@ class ProductValidator:
             'product': product
         }
     
-    def validate_product_name(self, name: str) -> dict: # ✅ 
+    def validate_product_name(self, name: str) -> dict: 
         """
         ولیدیشن نام محصول
         
@@ -67,7 +67,7 @@ class ProductValidator:
             'name': name_str
         }
     
-    def validate_product_quantity(self, quantity: int) -> dict: # ✅ 
+    def validate_product_quantity(self, quantity: int) -> dict: 
         """
         ولیدیشن موجودی محصول
         

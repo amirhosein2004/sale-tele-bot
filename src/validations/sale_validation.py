@@ -13,7 +13,7 @@ class SaleValidator:
         """
         self.data_manager = data_manager
     
-    def validate_sale_exists(self, sale_id: int) -> dict: # ✅
+    def validate_sale_exists(self, sale_id: int) -> dict: 
         """
         ولیدیشن وجود فروش
         

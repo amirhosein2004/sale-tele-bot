@@ -13,7 +13,7 @@ class DeletionValidator:
         """
         self.data_manager = data_manager
     
-    def validate_product_deletion(self, product_id: int) -> dict: # ✅ 
+    def validate_product_deletion(self, product_id: int) -> dict: 
         """
         ولیدیشن حذف محصول
         
@@ -30,7 +30,7 @@ class DeletionValidator:
             'product': product
         }
     
-    def validate_sale_deletion(self, sale_id: int) -> dict: # ✅ 
+    def validate_sale_deletion(self, sale_id: int) -> dict: 
         """
         ولیدیشن حذف فروش
         

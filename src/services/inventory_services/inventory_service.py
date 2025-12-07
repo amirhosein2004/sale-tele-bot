@@ -60,7 +60,7 @@ class InventoryService:
             'low_stock_count': len(low_stock)
         }
     
-    def delete_product(self, product_id: int) -> dict: # ✅ 
+    def delete_product(self, product_id: int) -> dict:
         """
         حذف محصول
         
