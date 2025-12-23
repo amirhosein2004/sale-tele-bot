@@ -1,16 +1,15 @@
 # مدیریت وضعیت کاربران و instance های مشترک
-from ...data_manager import DataManager
+from ...repository import DataManagerAdapter
 
-# ایجاد یک instance مشترک از DataManager
-data_manager = DataManager()
+# ایجاد یک instance مشترک از DataManagerAdapter (بجای DataManager قدیمی)
+data_manager = DataManagerAdapter()
 
-
-import random
-
-for i in range(1, 300):
-    name = f"Product {i}"
-    quantity = random.randint(1, 50)
-    data_manager.add_product(name, quantity)
+# داده‌های تستی - این بخش بعداً حذف خواهد شد
+# import random
+# for i in range(1, 300):
+#    name = f"Product {i}"
+#    quantity = random.randint(1, 50)
+#    data_manager.add_product(name, quantity)
 
 # ذخیره وضعیت کاربران
 user_states = {}
@@ -21,7 +20,7 @@ processing_users = set()  # کاربرانی که در حال پردازش هس�
 
 def get_user_state(user_id):
     """دریافت وضعیت کاربر"""
-    return user_states.get(user_id, 'main_menu')
+    return user_states.get(user_id, "main_menu")
 
 
 def set_user_state(user_id, state):
