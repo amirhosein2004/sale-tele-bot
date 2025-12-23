@@ -19,27 +19,6 @@ class InventoryService:
         self.deletion_validator = DeletionValidator(data_manager)
         self.product_validator = ProductValidator(data_manager)
     
-    def format_products_list(self, products: list) -> str: 
-        """
-        فرمت‌بندی لیست محصولات برای نمایش
-        
-        Args:
-            products: لیست محصولات
-            
-        Returns:
-            متن فرمت‌شده
-        """
-        if not products:
-            return "📦 *موجودی محصولات*\n\n❌ هیچ محصولی ثبت نشده است."
-        
-        text = "📦 *موجودی محصولات*\n\n"
-        for product in products:
-            quantity = int(product['quantity'])
-            status_icon = "✅" if quantity > 0 else "❌"
-            text += f"{status_icon} {product['name']} - موجودی: {quantity} عدد\n"
-        
-        return text
-    
     def calculate_inventory_summary(self) -> dict: 
         """
         محاسبه خلاصه موجودی
@@ -214,36 +193,6 @@ class InventoryService:
             'error_message': None
         }
     
-    def get_available_products_with_status(self) -> dict:
-        """
-        دریافت وضعیت محصولات برای فروش
-        
-        Returns:
-            دیکشنری شامل: available_products (list), has_products (bool), message (str)
-        """
-        available_products = self.data_manager.get_available_products()
-        
-        if not available_products:
-            all_products = self.data_manager.get_all_products()
-            if not all_products:
-                return {
-                    'available_products': [],
-                    'has_products': False,
-                    'message': '❌ ابتدا باید محصول اضافه کنید.'
-                }
-            else:
-                return {
-                    'available_products': [],
-                    'has_products': False,
-                    'message': '❌ هیچ محصولی با موجودی کافی برای فروش وجود ندارد.\n\nلطفاً ابتدا موجودی محصولات را تکمیل کنید.'
-                }
-        
-        return {
-            'available_products': available_products,
-            'has_products': True,
-            'message': None
-        }
-    
     def get_inventory_page(self, page: int = 1, items_per_page: int = 5) -> dict:
         """
         دریافت صفحه‌ای از موجودی محصولات
@@ -280,28 +229,6 @@ class InventoryService:
             'page': pagination_result['page'],
             'total_pages': pagination_result['total_pages'],
             'text': text
-        }
-    
-    def get_products_for_edit(self) -> dict:
-        """
-        دریافت لیست محصولات برای ویرایش
-        
-        Returns:
-            دیکشنری شامل: products, has_products, message
-        """
-        products = self.data_manager.get_all_products()
-        
-        if not products:
-            return {
-                'products': [],
-                'has_products': False,
-                'message': "❌ هیچ محصولی برای ویرایش وجود ندارد."
-            }
-        
-        return {
-            'products': products,
-            'has_products': True,
-            'message': None
         }
     
     def get_products_for_edit_page(self, page: int = 1, items_per_page: int = 5) -> dict:

@@ -318,30 +318,6 @@ class SalesService:
             'error_message': '❌ خطا در بروزرسانی فروش!'
         }
     
-    def get_sales_list_for_display(self) -> dict: 
-        """
-        دریافت لیست فروش‌ها برای نمایش
-        
-        Returns:
-            دیکشنری شامل: has_sales (bool), sales (list), message (str), text (str)
-        """
-        sales = self.data_manager.get_all_sales()
-        
-        if not sales:
-            return {
-                'has_sales': False,
-                'sales': [],
-                'message': '📊 هیچ فروشی ثبت نشده است.',
-                'text': None
-            }
-        
-        return {
-            'has_sales': True,
-            'sales': sales,
-            'message': None,
-            'text': "📊 لیست فروش‌ها\n\nفروش مورد نظر را انتخاب کنید:"
-        }
-   
     def get_sales_page(self, page: int = 1, items_per_page: int = 5) -> dict:
         """
         دریافت صفحه‌ای از فروش‌ها برای نمایش
@@ -378,36 +354,6 @@ class SalesService:
             'total_pages': pagination_result['total_pages'],
             'text': text,
             'has_sales': True,
-            'message': None
-        }
-
-    def get_products_for_sale(self) -> dict:
-        """
-        دریافت لیست محصولات برای فروش
-        
-        Returns:
-            دیکشنری شامل: products, has_products, message
-        """
-        available_products = self.data_manager.get_available_products()
-        
-        if not available_products:
-            all_products = self.data_manager.get_all_products()
-            if not all_products:
-                return {
-                    'products': [],
-                    'has_products': False,
-                    'message': '❌ ابتدا باید محصول اضافه کنید.'
-                }
-            else:
-                return {
-                    'products': [],
-                    'has_products': False,
-                    'message': '❌ هیچ محصولی با موجودی کافی برای فروش وجود ندارد.\n\nلطفاً ابتدا موجودی محصولات را تکمیل کنید.'
-                }
-        
-        return {
-            'products': available_products,
-            'has_products': True,
             'message': None
         }
 
