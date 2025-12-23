@@ -21,5 +21,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire project
 COPY . .
 
-# Run the bot
-CMD ["python", "-m", "src.main"]
+# Copy and make entrypoint executable
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Run the bot with migrations
+CMD ["/app/entrypoint.sh"]
