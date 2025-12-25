@@ -86,9 +86,15 @@ class AddProduct:
             self.bot.register_next_step_handler(msg, self._process_product_quantity)
             return
         
+        # بررسی اینکه محصول جدید است یا موجود
+        if result['is_created']:
+            message = f"✅ محصول '{result['product_name']}' با موجودی {result['quantity']} عدد اضافه شد."
+        else:
+            message = f"⚠️ محصول '{result['product_name']}' قبلاً وجود دارد. موجودی فعلی: {result['quantity']} عدد"
+        
         self.bot.send_message(
             user_id,
-            f"✅ محصول '{result['product_name']}' با موجودی {result['quantity']} عدد اضافه شد.",
+            message,
             reply_markup=back_button("inventory")
         )
         

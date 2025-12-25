@@ -26,8 +26,12 @@ class DataManagerAdapter:
 
     def add_product(self, name, quantity):
         """افزودن محصول جدید"""
-        product = self.product_repo.create(name, int(quantity))
-        return product.id
+        product, is_created = self.product_repo.create(name, int(quantity))
+        return {
+            'product_id': product.id,
+            'is_created': is_created,
+            'current_stock': product.stock
+        }
 
     def get_all_products(self):
         """دریافت تمام محصولات"""
@@ -98,13 +102,21 @@ class DataManagerAdapter:
 
     def update_sale(self, sale_id, sale_data):
         """به‌روزرسانی فروش"""
-        return self.sale_repo.update(
-            sale_id,
-            quantity=sale_data.get("quantity"),
-            total_sale=sale_data.get("total_sale_price"),
-            total_cost=sale_data.get("total_cost"),
-            extra_cost=sale_data.get("extra_cost"),
-        )
+        # فقط پارامترهایی که در sale_data وجود دارند و None نیستند را ارسال کن
+        update_params = {}
+        
+        if "product_id" in sale_data and sale_data["product_id"] is not None:
+            update_params["product_id"] = sale_data["product_id"]
+        if "quantity" in sale_data and sale_data["quantity"] is not None:
+            update_params["quantity"] = sale_data["quantity"]
+        if "total_sale_price" in sale_data and sale_data["total_sale_price"] is not None:
+            update_params["total_sale"] = sale_data["total_sale_price"]
+        if "total_cost" in sale_data and sale_data["total_cost"] is not None:
+            update_params["total_cost"] = sale_data["total_cost"]
+        if "extra_cost" in sale_data and sale_data["extra_cost"] is not None:
+            update_params["extra_cost"] = sale_data["extra_cost"]
+        
+        return self.sale_repo.update(sale_id, **update_params)
 
     def delete_sale(self, sale_id):
         """حذف فروش"""

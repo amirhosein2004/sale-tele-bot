@@ -8,7 +8,7 @@ DB_HOST="postgres"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_FILE="$BACKUP_DIR/backup_$TIMESTAMP.sql"
 LATEST_BACKUP="$BACKUP_DIR/backup_latest.sql"
-MAX_BACKUPS=30
+MAX_BACKUPS=10
 
 # Create directory if it doesn't exist
 mkdir -p "$BACKUP_DIR"
@@ -24,7 +24,7 @@ if [ $? -eq 0 ]; then
     # Create link to latest backup
     ln -sf "$BACKUP_FILE" "$LATEST_BACKUP"
     
-    # Remove older backups (keep only the last 30)
+    # Remove older backups (keep only the last 10)
     ls -t "$BACKUP_DIR"/backup_*.sql 2>/dev/null | tail -n +$((MAX_BACKUPS + 1)) | xargs -r rm
     echo "🧹 Old backups removed (maximum $MAX_BACKUPS versions kept)"
 else

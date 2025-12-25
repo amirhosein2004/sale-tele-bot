@@ -158,7 +158,7 @@ class InventoryService:
             quantity: موجودی اولیه
             
         Returns:
-            دیکشنری شامل: success (bool), product_id (int|None), error_message (str|None)
+            دیکشنری شامل: success (bool), product_id (int|None), is_created (bool), error_message (str|None)
         """
         # ولیدیشن نام
         name_validation = self.product_validator.validate_product_name(product_name)
@@ -166,6 +166,7 @@ class InventoryService:
             return {
                 'success': False,
                 'product_id': None,
+                'is_created': False,
                 'error_message': name_validation['error_message']
             }
         
@@ -175,6 +176,7 @@ class InventoryService:
             return {
                 'success': False,
                 'product_id': None,
+                'is_created': False,
                 'error_message': quantity_validation['error_message']
             }
         
@@ -183,13 +185,14 @@ class InventoryService:
         validated_quantity = quantity_validation['quantity']
         
         # اضافه کردن محصول
-        product_id = self.data_manager.add_product(validated_name, validated_quantity)
+        result = self.data_manager.add_product(validated_name, validated_quantity)
         
         return {
             'success': True,
-            'product_id': product_id,
+            'product_id': result['product_id'],
+            'is_created': result['is_created'],
             'product_name': validated_name,
-            'quantity': validated_quantity,
+            'quantity': result['current_stock'],
             'error_message': None
         }
     
