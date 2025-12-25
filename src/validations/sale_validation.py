@@ -9,18 +9,19 @@ from ..repository.converters import sale_to_dict, product_to_dict
 class SaleValidator:
     """ولیدیشن عملیات فروش"""
 
-    def __init__(self, sale_repo: SaleRepository = None):
+    def __init__(self, data_manager=None):
         """
         Args:
-            sale_repo: SaleRepository instance (اختیاری)
+            data_manager: DataManagerAdapter instance (اختیاری)
         """
-        if sale_repo is None:
+        if data_manager is None:
             repo_manager = RepositoryManager()
             self.sale_repo = repo_manager.sale_repo
             self._owns_repo = True
             self._repo_manager = repo_manager
         else:
-            self.sale_repo = sale_repo
+            # استفاده از sale_repo از data_manager
+            self.sale_repo = data_manager.sale_repo
             self._owns_repo = False
             self._repo_manager = None
 
@@ -51,18 +52,19 @@ class SaleValidator:
 class SaleInputValidator:
     """ولیدیشن ورودی‌های فروش"""
 
-    def __init__(self, product_repo: ProductRepository = None):
+    def __init__(self, data_manager=None):
         """
         Args:
-            product_repo: ProductRepository instance (اختیاری)
+            data_manager: DataManagerAdapter instance (اختیاری)
         """
-        if product_repo is None:
+        if data_manager is None:
             repo_manager = RepositoryManager()
             self.product_repo = repo_manager.product_repo
             self._owns_repo = True
             self._repo_manager = repo_manager
         else:
-            self.product_repo = product_repo
+            # استفاده از product_repo از data_manager
+            self.product_repo = data_manager.product_repo
             self._owns_repo = False
             self._repo_manager = None
 

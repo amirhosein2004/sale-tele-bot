@@ -9,8 +9,8 @@ class Sale(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     
-    # foreign key to product
-    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    # foreign key to product - SET NULL وقتی محصول حذف شود
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="SET NULL"), nullable=True)
     product = relationship("Product", back_populates="sales")
 
     quantity = Column(Integer, nullable=False)
