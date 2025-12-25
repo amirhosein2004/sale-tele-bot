@@ -17,7 +17,7 @@ class ProductRepository:
         """
         self.db = db
 
-    def create(self, name: str, stock: int) -> Product:
+    def create(self, name: str, stock: int) -> tuple[Product, bool]:
         """
         ایجاد محصول جدید
 
@@ -26,13 +26,22 @@ class ProductRepository:
             stock: موجودی اولیه
 
         Returns:
-            Product: محصول ایجاد شده
+            tuple: (Product, is_created) - is_created True اگر محصول جدید باشد
         """
-        product = Product(name=name, stock=stock)
-        self.db.add(product)
-        self.db.commit()
-        self.db.refresh(product)
-        return product
+        try:
+            # چک کن که محصول قبلاً وجود داره یا نه
+            existing_product = self.get_by_name(name)
+            if existing_product:
+                return existing_product, False
+            
+            product = Product(name=name, stock=stock)
+            self.db.add(product)
+            self.db.commit()
+            self.db.refresh(product)
+            return product, True
+        except Exception:
+            self.db.rollback()
+            raise
 
     def get_by_id(self, product_id: int) -> Optional[Product]:
         """
@@ -158,12 +167,16 @@ class ProductRepository:
         Returns:
             True اگر موفق باشد
         """
-        product = self.get_by_id(product_id)
-        if product:
-            self.db.delete(product)
-            self.db.commit()
-            return True
-        return False
+        try:
+            product = self.get_by_id(product_id)
+            if product:
+                self.db.delete(product)
+                self.db.commit()
+                return True
+            return False
+        except Exception:
+            self.db.rollback()
+            raise
 
     def check_stock_availability(self, product_id: int, required_quantity: int) -> bool:
         """

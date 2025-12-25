@@ -74,7 +74,7 @@ class ConfirmationManager:
         product = self.inventory_service.delete_product(product_id)
         
         if not product:
-            text = NOT_FOUND_MESSAGE
+            text = "❌ محصول یافت نشد."
         else:
             text = f"✅ محصول '{product['name']}' حذف شد."
         
